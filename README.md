@@ -1,10 +1,10 @@
-BootLeaf
+Geo Dashboard
 ========
 
 A simple, responsive template for building web mapping applications with [Bootstrap](http://getbootstrap.com/), [Leaflet](http://leafletjs.com/), and [typeahead.js](http://twitter.github.io/typeahead.js/).
 
 ### Demo:
-http://bmcbride.github.io/bootleaf/
+<No demo URL>
 
 ### Features:
 * Fullscreen mobile-friendly map template with responsive Navbar and modal placeholders
@@ -13,19 +13,20 @@ http://bmcbride.github.io/bootleaf/
 * Elegant client-side multi-layer feature search with autocomplete using [typeahead.js](http://twitter.github.io/typeahead.js/)
 * Responsive sidebar feature list with sorting and filtering via [list.js](http://listjs.com/)
 * Marker icons included in grouped layer control via the [grouped layer control plugin](https://github.com/ismyrnow/Leaflet.groupedlayercontrol)
+* Support custom Web Map Service URLs [Used to display WMS services as tile layers on the map](http://leafletjs.com/reference.html#tilelayer-wms)
 
 ### Screenshots:
 
-![Desktop](http://bmcbride.github.io/bootleaf/screenshots/bootleaf-desktop1.png)
+![Desktop]()
 
-![Desktop Search](http://bmcbride.github.io/bootleaf/screenshots/bootleaf-desktop2.png)
+![Desktop Search]()
 
-![Desktop Popup](http://bmcbride.github.io/bootleaf/screenshots/bootleaf-desktop3.png)
+![Desktop Popup]()
 
-![Mobile](http://bmcbride.github.io/bootleaf/screenshots/bootleaf-mobile1.png)
+![Mobile]()
 
-![Mobile Popup](http://bmcbride.github.io/bootleaf/screenshots/bootleaf-mobile2.png)
+![Mobile Popup]()
 
-![Mobile Search](http://bmcbride.github.io/bootleaf/screenshots/bootleaf-mobile3.png)
+![Mobile Search]()
 
-![Mobile Menu](http://bmcbride.github.io/bootleaf/screenshots/bootleaf-mobile4.png)
+![Mobile Menu]()
