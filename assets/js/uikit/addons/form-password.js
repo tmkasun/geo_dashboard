@@ -1,6 +1,6 @@
 /*! UIkit 2.8.0 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 
-(function(addon) {
+(function (addon) {
 
     var component;
 
@@ -9,12 +9,12 @@
     }
 
     if (typeof define == "function" && define.amd) {
-        define("uikit-form-password", ["uikit"], function(){
+        define("uikit-form-password", ["uikit"], function () {
             return component || addon(jQuery, jQuery.UIkit);
         });
     }
 
-})(function($, UI){
+})(function ($, UI) {
 
     UI.component('formPassword', {
 
@@ -23,30 +23,30 @@
             "lblHide": "Hide"
         },
 
-        init: function() {
+        init: function () {
 
             var $this = this;
 
-            this.on("click", function(e) {
+            this.on("click", function (e) {
 
                 e.preventDefault();
 
-                if($this.input.length) {
+                if ($this.input.length) {
                     var type = $this.input.attr("type");
-                    $this.input.attr("type", type=="text" ? "password":"text");
-                    $this.element.text($this.options[type=="text" ? "lblShow":"lblHide"]);
+                    $this.input.attr("type", type == "text" ? "password" : "text");
+                    $this.element.text($this.options[type == "text" ? "lblShow" : "lblHide"]);
                 }
             });
 
             this.input = this.element.next("input").length ? this.element.next("input") : this.element.prev("input");
-            this.element.text(this.options[this.input.is("[type='password']") ? "lblShow":"lblHide"]);
+            this.element.text(this.options[this.input.is("[type='password']") ? "lblShow" : "lblHide"]);
 
             this.element.data("formPassword", this);
         }
     });
 
     // init code
-    $(document).on("click.formpassword.uikit", "[data-uk-form-password]", function(e) {
+    $(document).on("click.formpassword.uikit", "[data-uk-form-password]", function (e) {
 
         var ele = $(this);
         if (!ele.data("formPassword")) {

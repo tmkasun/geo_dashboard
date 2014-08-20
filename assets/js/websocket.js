@@ -1,22 +1,39 @@
 /**
  * Created by kbsoft on 8/13/14.
  */
-var websocket = new WebSocket('ws://localhost:9763/CEP_DeviceTracking_Sample/server.jag');
+var tempDebug;
+var currentSpatialObjects = {};
+var websocket = new WebSocket('ws://localhost:9764/outputwebsocket/DefaultWebsocketOutputAdaptor/geoDataEndPoint');
 
-websocket.onopen = function() {
+websocket.onopen = function () {
     $.UIkit.notify({
-        message : 'You Are Connectedto Map Server!!',
-        status  : 'warning',
-        timeout : 1000,
-        pos     : 'bottom-left'
+        message: 'You Are Connectedto Map Server!!',
+        status: 'warning',
+        timeout: 1000,
+        pos: 'bottom-left'
     });
 };
 
+
 websocket.onmessage = function processMessage(message) {
-    /*
-    * Sample message for reference:
-    * {"event":{"payloadData":{"id":"8","time":"1.407993554543E12","longitude":"79.857253","lat":"6.944856","speed":"13.0","speedFlag":"true","withinFlag":"false","withinPoint":"null","withinTime":"false"}}}
-    * */
+    var geojsonFeature = $.parseJSON(message.data);
+//    console.log(JSON.stringify(geojsonFeature));
+
+//    console.log(tempDebug.heading);
+
+    if (geojsonFeature.id in currentSpatialObjects) {
+        exsitingObject = currentSpatialObjects[geojsonFeature.id];
+        exsitingObject.update(geojsonFeature);
+    }
+    else {
+        var receivedObject = new SpatialObject(geojsonFeature);
+        currentSpatialObjects[receivedObject.id] = receivedObject;
+        currentSpatialObjects[receivedObject.id].addTo(map);
+        tempDebug = receivedObject;
+
+    }
+
+    return false;
     var jsonData = JSON.parse(message.data);
     var id = jsonData.event.payloadData.id;
     var lat = jsonData.event.payloadData.lat;
@@ -29,12 +46,7 @@ websocket.onmessage = function processMessage(message) {
     bufferLat = res[1];
     bufferLon = res[0];
 
-    $.UIkit.notify({
-        message : 'id = '+id+'\n lat = '+lat+'\n lon = '+lon,
-        status  : 'warning',
-        timeout : 10000,
-        pos     : 'bottom-left'
-    });
+
     var proximity1 = jsonData.event.payloadData.proximity;
 
     if (proximity1 != "false" && proximity1 != null) {
@@ -57,37 +69,33 @@ var markerLayer = new L.layerGroup();
 var polylineLayer = new L.layerGroup();
 var bufferLayer = new L.layerGroup();
 
-
-
 //Marker Icon List Class
+//var markers = L.Icon.extend({
+//    options : {
+//        iconSize : [ 41, 41 ],
+//        shadowSize : [ 41, 41 ],
+//        iconAnchor : [ 20, 40 ],
+//        shadowAnchor : [ 10, 40 ],
+//        popupAnchor : [ 0, -30 ]
+//    }
+//});
+//
+//var defIcon = L.Icon.Default.extend({
+//    options : {
+//        iconUrl : 'assets/img/markers/marker-icon.png'
+//    }
+//});
+//var DefIcon = new defIcon();
+//
+//var pinkIcon = new markers({
+//    iconUrl : 'assets/img/markers/pinkMarker.png'
+//}), redIcon = new markers({
+//    iconUrl : 'assets/img/markers/redMarker.png'
+//}), greenIcon = new markers({
+//    iconUrl : 'assets/img/markers/greenMarker.png'
+//});
 
-var markers = L.Icon.extend({
-    options : {
-        iconSize : [ 41, 41 ],
-        shadowSize : [ 41, 41 ],
-        iconAnchor : [ 20, 40 ],
-        shadowAnchor : [ 10, 40 ],
-        popupAnchor : [ 0, -30 ]
-    }
-});
-
-var defIcon = L.Icon.Default.extend({
-    options : {
-        iconUrl : 'assets/img/markers/marker-icon.png'
-    }
-});
-var DefIcon = new defIcon();
-
-var pinkIcon = new markers({
-    iconUrl : 'assets/img/markers/pinkMarker.png'
-}), redIcon = new markers({
-    iconUrl : 'assets/img/markers/redMarker.png'
-}), greenIcon = new markers({
-    iconUrl : 'assets/img/markers/greenMarker.png'
-});
-
-function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag,
-                    proximityFlag) {
+function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag, proximityFlag) {
     var markerCheck = false;
     var spdflg = document.getElementById("maxSpeed");
     var stationedMaxTime = document.getElementById("maxStationed");
@@ -99,12 +107,12 @@ function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag,
     //Adding The Markers and PolyLines
     if (idList.length == 0) {
 
-        mark = L.marker([lat,lon],{icon:DefIcon}).bindPopup("Vehicle ID"+id, {
-            autoPan : false
+        mark = L.marker([lat, lon], {icon: DefIcon}).bindPopup("Vehicle ID" + id, {
+            autoPan: false
         });
         markerLayer.addLayer(mark).addTo(map);
         poly = L.polyline([], {
-            color : 'green'
+            color: 'green'
         });
         polylineLayer.addLayer(poly).addTo(map);
 
@@ -121,12 +129,12 @@ function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag,
         }
         // If the ID is not in the list initiate new entry
         else if ((i - 1) == 0) {
-            mark = L.marker([lat,lon],{icon:DefIcon}).bindPopup("Vehicle ID"+id, {
-                autoPan : false
+            mark = L.marker([lat, lon], {icon: DefIcon}).bindPopup("Vehicle ID" + id, {
+                autoPan: false
             });
             markerLayer.addLayer(mark);
             poly = L.polyline([], {
-                color : 'green'
+                color: 'green'
             });
             polylineLayer.addLayer(poly).addTo(map);
             len = idList.length - 1;
@@ -147,9 +155,9 @@ function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag,
 
                 //The radius is fixed 20m
                 var circle = L.circle([ bufferLat, bufferLon ], 20, {
-                    color : 'black',
-                    fillColor : '#f03',
-                    fillOpacity : 0.3
+                    color: 'black',
+                    fillColor: '#f03',
+                    fillOpacity: 0.3
                 }).bindPopup(
                         "Location(Lat & Lon) of Buffer : " + bufferLat
                         + " : " + bufferLon);
@@ -169,9 +177,9 @@ function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag,
 
                         var circle = L.circle([ 6.88985, 79.85882 ],
                             20, {
-                                color : 'black',
-                                fillColor : '#f03',
-                                fillOpacity : 0.3
+                                color: 'black',
+                                fillColor: '#f03',
+                                fillOpacity: 0.3
                             }).bindPopup(
                                 "Lat,Lon of Buffer : " + bufferLat
                                 + " : " + bufferLon);
@@ -268,7 +276,7 @@ function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag,
 
             idList[len][2].addLatLng([ lat, lon ]);
             poly = L.polyline([], {
-                color : 'Red'
+                color: 'Red'
             });
             polylineLayer.addLayer(poly).addTo(map);
             idList[len][2] = poly;
@@ -281,7 +289,7 @@ function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag,
         if (idList[len][3] == true) {
             idList[i - 1][2].addLatLng([ lat, lon ]);
             poly = L.polyline([], {
-                color : 'Green'
+                color: 'Green'
             });
             polylineLayer.addLayer(poly).addTo(map);
             idList[len][2] = poly;
@@ -309,9 +317,89 @@ function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag,
     if (document.getElementById("followId").checked
         && document.getElementById("followID").value == id) {
         map.panTo([ lat, lon ], {
-            duration : 0.5
+            duration: 0.5
         });
 
     }
 
+}
+
+
+var normalIcon = L.icon({
+    iconUrl: "assets/img/markers/arrow_normal.png",
+    shadowUrl: false,
+    iconSize: [24, 24],
+    iconAnchor: [+12, +12],
+    popupAnchor: [-2, -5] //[-3,-76]
+});
+var alertedIcon = L.icon({
+    iconUrl: "assets/img/markers/arrow_alerted.png",
+    shadowUrl: false,
+    iconSize: [24, 24],
+    iconAnchor: [+12, +12],
+    popupAnchor: [-2, -5] //[-3,-76]
+});
+var offlineIcon = L.icon({
+    iconUrl: "assets/img/markers/arrow_offline.png",
+    iconSize: [24, 24],
+    iconAnchor: [+12, +12],
+    popupAnchor: [-2, -5] //[-3,-76]
+});
+
+var defaultIcon =  L.icon({
+    iconUrl: "assets/img/markers/default_icons/marker-icon.png",
+    iconSize: [24, 24],
+    iconAnchor: [+12, +12],
+    popupAnchor: [-2, -5] //[-3,-76]
+});
+
+function SpatialObject(geoJSON) {
+    this.id = geoJSON.id;
+    this.geoJson = L.geoJson(geoJSON, {
+        pointToLayer: function (feature, latlng) {
+            return L.marker(latlng,{icon:normalIcon,iconAngle: this.heading});
+        }
+    });
+    this.marker = this.geoJson.getLayers()[0];
+
+    /* Method definitions */
+    this.addTo = function (map) {
+        this.geoJson.addTo(map);
+    };
+    this.setSpeed = function (speed) {
+        this.speed = speed;
+    };
+    this.stateIcon = function(){
+        switch(this.state) {
+            case "NORMAL":
+                return normalIcon;
+                break;
+            case "ALERTED":
+                return alertedIcon;
+                break;
+            case "OFFLINE":
+                return offlineIcon;
+                break;
+            default:
+                return defaultIcon;
+        }
+
+    };
+    this.update = function (geoJSON) {
+        this.latitude = geoJSON.geometry.coordinates[1];
+        this.longitude = geoJSON.geometry.coordinates[0];
+        this.speed = geoJSON.properties.speed;
+        this.state = geoJSON.properties.state;
+        this.heading = geoJSON.properties.heading;
+        this.information = geoJSON.properties.information;
+        this.marker.setLatLng([this.latitude, this.longitude]);
+        this.marker.setIconAngle(this.heading);
+        this.marker.setIcon(this.stateIcon());
+        popupTemplate = $('#markerPopup');
+        popupTemplate.find('#objectId').html(this.id);
+        popupTemplate.find('#information').html(this.information);
+        this.marker.bindPopup(popupTemplate.html());
+    };
+    this.update(geoJSON);
+    return this;
 }

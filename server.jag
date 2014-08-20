@@ -1,12 +1,24 @@
 <%
 var log = new Log();
+log.info("Start");
 webSocket.ontext = function (data) {
-	log.debug('Client Sent : ' + data);
+	log.info("Receive data "+data);
 	//var ws = this;
 	var list = application.get('list');
-	
+    if(list ==null){
+    		log.debug('adding list');
+    		streamList.push(this);
+    		application.put('list', streamList);
+    		log.debug(streamList.length);
+    	}
+    	else{
+    		var storedList = application.get('list');
+    		storedList.push(this);
+    		application.put('list', storedList);
+    		log.debug(storedList.length);
+    	}
 	//broadcasting
-	for(var i = list.length - 1; i >= 0; i--) {		
+	for(var i = list.length - 1; i >= 0; i--) {
 		list[i].send(data);
 	}
 
@@ -18,7 +30,7 @@ webSocket.onbinary = function (stream) {
 
 
 webSocket.onopen = function () {
-	//log.debug(this.toString());
+	log.info("Web socket onopen");
 	var streamList=[];
 	var list = application.get('list');
 	if(list ==null){
@@ -51,6 +63,26 @@ webSocket.onclose = function (status) {
 
 
 	log.debug(list.length);
-	
+
 };
+
+function logToFile(message){
+    var currentdate = new Date();
+    var datetime = "[Info]: " + currentdate.getDate() + "/"
+                    + (currentdate.getMonth()+1)  + "/"
+                    + currentdate.getFullYear() + " @ "
+                    + currentdate.getHours() + ":"
+                    + currentdate.getMinutes() + ":"
+                    + currentdate.getSeconds()+"\t";
+
+    message = datetime + message + "\n";
+    var path = "log/server.log";
+    var file = new File(path);
+    file.open("a+");
+
+    message = file.write(message);
+    file.close();
+
+}
+
 %>

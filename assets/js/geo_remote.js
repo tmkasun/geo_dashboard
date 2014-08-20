@@ -12,7 +12,7 @@ function addTileUrl() {
     subdomains = $('#sub_domains').val();
     attribution = $('#data_attribution').val();
     /* Add to base layers*/
-    var newTileLayer = L.tileLayer(tileUrl,{
+    var newTileLayer = L.tileLayer(tileUrl, {
         maxZoom: parseInt(maxzoom),
         subdomains: subdomains.split(','),
         attribution: attribution
@@ -73,15 +73,15 @@ function getTileServers() {
     $.getJSON("jaggery/tile_servers.jag?serverId=all", function (data) {
         $.each(data, function (key, val) {
             $.UIkit.notify({
-                message: 'Loading... <span style="color: #ccfcff">' + val.name + '</span>'+
-                    ' URL: <span style="color: #00ff00">' + val.url + '</span>' ,
+                message: 'Loading... <span style="color: #ccfcff">' + val.name + '</span>' +
+                    ' URL: <span style="color: #00ff00">' + val.url + '</span>',
                 status: 'info',
                 timeout: 2000,
                 pos: 'bottom-left'
             });
             //baseLayers[val.name]
             var newTileLayer = L.tileLayer(
-                val.url,{
+                val.url, {
                     maxZoom: val.maxzoom, // TODO: if no maxzoom level do not set this attribute
                     subdomains: val.subdomains.split(','), // TODO: if no subdomains do not set this attribute
                     attribution: val.attribution
@@ -100,14 +100,14 @@ function addWmsEndPoint() {
     serviceEndPoint = $('#serviceEndPoint').val();
     outputFormat = $('#outputFormat').val();
 
-    wmsLayer = L.tileLayer.wms(serviceEndPoint,{
+    wmsLayer = L.tileLayer.wms(serviceEndPoint, {
         layers: layers.split(','),
         format: outputFormat ? outputFormat : 'image/png',
 //        version: wmsVersion,
         transparent: true,
         opacity: 0.4});
 
-    layerControl.addOverlay(wmsLayer,serviceName,"Web Map Service layers");
+    layerControl.addOverlay(wmsLayer, serviceName, "Web Map Service layers");
     map.addLayer(wmsLayer);
     var data = {
         'serviceName': serviceName,
@@ -129,20 +129,18 @@ function addWmsEndPoint() {
     });
 }
 
-function getWms(){
+function getWms() {
     // For refference {"wmsServerId" : 1, "serviceUrl" : "http://{s}.somedomain.com/blabla/{z}/{x}/{y}.png", "name" : "Sample server URL", "layers" : "asdsad,sd,adasd,asd", "version" : "1.0.2", "format" : "sadasda/asdas"}
-
     $.getJSON("controllers/wms_endpoints.jag?serverId=all", function (data) {
         $.each(data, function (key, val) {
 
-            wmsLayer = L.tileLayer.wms(val.serviceUrl,{
+            wmsLayer = L.tileLayer.wms(val.serviceUrl, {
                 layers: val.layers.split(','),
                 format: val.format ? val.format : 'image/png',
                 version: val.version,
                 transparent: true,
                 opacity: 0.4});
-            layerControl.addOverlay(wmsLayer,val.name,"Web Map Service layers");
-            console.log("DEBUG:***AJAX return");
+            layerControl.addOverlay(wmsLayer, val.name, "Web Map Service layers");
         });
     });
 }

@@ -1,6 +1,6 @@
 /*! UIkit 2.8.0 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 
-(function(addon) {
+(function (addon) {
 
     var component;
 
@@ -9,32 +9,33 @@
     }
 
     if (typeof define == "function" && define.amd) {
-        define("uikit-form-select", ["uikit"], function(){
+        define("uikit-form-select", ["uikit"], function () {
             return component || addon(jQuery, jQuery.UIkit);
         });
     }
 
-})(function($, UI){
+})(function ($, UI) {
 
     UI.component('formSelect', {
         defaults: {
             'target': '>span:first'
         },
 
-        init: function() {
+        init: function () {
             var $this = this;
 
-            this.target  = this.find(this.options.target);
-            this.select  = this.find('select');
+            this.target = this.find(this.options.target);
+            this.select = this.find('select');
 
             // init + on change event
-            this.select.on("change", (function(){
+            this.select.on("change", (function () {
 
-                var select = $this.select[0], fn = function(){
+                var select = $this.select[0], fn = function () {
 
                     try {
                         $this.target.text(select.options[select.selectedIndex].text);
-                    } catch(e) {}
+                    } catch (e) {
+                    }
 
                     return fn;
                 };
@@ -47,9 +48,9 @@
     });
 
     // init code
-    $(document).on("uk-domready", function(e) {
+    $(document).on("uk-domready", function (e) {
 
-        $("[data-uk-form-select]").each(function(){
+        $("[data-uk-form-select]").each(function () {
             var ele = $(this);
 
             if (!ele.data("formSelect")) {

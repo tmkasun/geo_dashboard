@@ -37,6 +37,8 @@
     <script src="assets/js/L.Control.Locate.js"></script>
     <script src="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
     <script src="assets/js/Leaflet.fullscreen.min.js"></script>
+    <script src="assets/js/leaflet/Marker.Rotate.js"></script>
+
     <!-- UIkit libraries -->
     <script src="assets/js/uikit/uikit.min.js"></script>
     <script src="assets/js/uikit/addons/notify.min.js"></script>
@@ -489,9 +491,9 @@
                 <h4 class="modal-title">
                     <!-- TODO: Trigger bootstrap tooltip $('#aboutTileUrl').tooltip(); to enable tooltip -->
                     Add WMS service end-point<sup id="aboutWms" style="cursor: pointer;" data-toggle="tooltip"
-                                              title="What WMS end-point"><i class="fa fa-question" style="color: #39F;"
-                                                                             data-toggle="collapse"
-                                                                             data-target="#wmsOverview"></i></sup>
+                                                  title="What WMS end-point"><i class="fa fa-question" style="color: #39F;"
+                                                                                data-toggle="collapse"
+                                                                                data-target="#wmsOverview"></i></sup>
                 </h4>
             </div>
             <div class="modal-body">
@@ -558,8 +560,6 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -570,5 +570,15 @@
 <!-- /Modals in use -->
 
 <script src="assets/js/app.js"></script>
+
+<div style="display: none">
+    <div id="markerPopup" class="popover top">
+        <div class="arrow"></div>
+        <h3 class="popover-title">Object ID <span id="objectId"></span></h3>
+        <div class="popover-content">
+            <p id="information"></p>
+        </div>
+    </div>
+</div>
 </body>
 </html>

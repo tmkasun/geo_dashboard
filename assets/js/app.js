@@ -8,14 +8,14 @@ var map, featureList, boroughSearch = [], theaterSearch = [], museumSearch = [];
 
 $("#loading").hide();
 
-$(document).on("click", ".feature-name", function(e) {
+$(document).on("click", ".feature-name", function (e) {
     sidebarClick(parseInt($(this).attr('id')));
 });
 
 function sidebarClick(id) {
     map.addLayer(theaterLayer).addLayer(museumLayer);
     var layer = markerClusters.getLayer(id);
-    markerClusters.zoomToShowLayer(layer, function() {
+    markerClusters.zoomToShowLayer(layer, function () {
         map.setView([layer.getLatLng().lat, layer.getLatLng().lng], 17);
         layer.fire("click");
     });
@@ -231,7 +231,7 @@ var theaters = L.geoJson(null, {
                     }));
                 }
             });
-            $("#feature-list tbody").append('<tr style="cursor: pointer;"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/theater.png"></td><td class="feature-name" id="'+L.stamp(layer)+'">'+layer.feature.properties.NAME+'</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+            $("#feature-list tbody").append('<tr style="cursor: pointer;"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/theater.png"></td><td class="feature-name" id="' + L.stamp(layer) + '">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
             theaterSearch.push({
                 name: layer.feature.properties.NAME,
                 address: layer.feature.properties.ADDRESS1,
@@ -251,13 +251,13 @@ var theaters = L.geoJson(null, {
 
 initializeMap();
 
-function initializeMap(tileLayer){
-    if(typeof(tileLayer)==='undefined') tileLayer = defaultOSM;
-    if (typeof(map)!=='undefined') map.remove();
+function initializeMap(tileLayer) {
+    if (typeof(tileLayer) === 'undefined') tileLayer = defaultOSM;
+    if (typeof(map) !== 'undefined') map.remove();
     map = L.map("map", {
         zoom: 10,
         center: [6.934846, 79.851980],
-        layers: [defaultOSM,boroughs, markerClusters, highlight],
+        layers: [defaultOSM, boroughs, markerClusters, highlight],
         zoomControl: false,
         attributionControl: false
     });
@@ -294,7 +294,7 @@ var museums = L.geoJson(null, {
                     }));
                 }
             });
-            $("#feature-list tbody").append('<tr style="cursor: pointer;"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/museum.png"></td><td class="feature-name" id="'+L.stamp(layer)+'">'+layer.feature.properties.NAME+'</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+            $("#feature-list tbody").append('<tr style="cursor: pointer;"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/museum.png"></td><td class="feature-name" id="' + L.stamp(layer) + '">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
             museumSearch.push({
                 name: layer.feature.properties.NAME,
                 address: layer.feature.properties.ADRESS1,
@@ -311,7 +311,7 @@ var museums = L.geoJson(null, {
 //});
 
 /* Layer control listeners that allow for a single markerClusters layer */
-map.on("overlayadd", function(e) {
+map.on("overlayadd", function (e) {
     if (e.layer === theaterLayer) {
         markerClusters.addLayer(theaters);
     }
@@ -320,7 +320,7 @@ map.on("overlayadd", function(e) {
     }
 });
 
-map.on("overlayremove", function(e) {
+map.on("overlayremove", function (e) {
     if (e.layer === theaterLayer) {
         markerClusters.removeLayer(theaters);
     }
@@ -330,13 +330,13 @@ map.on("overlayremove", function(e) {
 });
 
 /* Clear feature highlight when map is clicked */
-map.on("click", function(e) {
+map.on("click", function (e) {
     highlight.clearLayers();
 });
 
 /* Attribution control */
 function updateAttribution(e) {
-    $.each(map._layers, function(index, layer) {
+    $.each(map._layers, function (index, layer) {
         if (layer.getAttribution) {
             $("#attribution").html((layer.getAttribution()));
         }
@@ -406,7 +406,6 @@ getWms();
 var layerControl = L.control.groupedLayers(baseLayers, groupedOverlays, {
     collapsed: isCollapsed
 }).addTo(map);
-console.log("DEBUG:***Base layers added");
 
 /* Highlight search box text on click */
 $("#searchbox").click(function () {

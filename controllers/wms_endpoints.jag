@@ -9,7 +9,7 @@ var log = new Log();
 log.info("Required the module");
 var configuration = db.configuration;
 var db = new Database("jdbc:mysql://"+configuration.server+":3306/"+configuration.db_name, configuration.username, configuration.password);
-
+//logToFile("WMS-Request received");
 if(request.getMethod() == "GET"){
     var serverId = request.getParameter("serverId");
     if(serverId == "all"){
@@ -50,6 +50,27 @@ else if(request.getMethod() == "POST"){
         db.close();
     }
 
+
+}
+
+
+function logToFile(message){
+    var currentdate = new Date();
+    var datetime = "[Info]: " + currentdate.getDate() + "/"
+                    + (currentdate.getMonth()+1)  + "/"
+                    + currentdate.getFullYear() + " @ "
+                    + currentdate.getHours() + ":"
+                    + currentdate.getMinutes() + ":"
+                    + currentdate.getSeconds()+"\t";
+
+    message = datetime + message + "\n";
+    //print(message);
+    var path = "../log/server.log";
+    var file = new File(path);
+    file.open("a+");
+
+    message = file.write(message);
+    file.close();
 
 }
 
