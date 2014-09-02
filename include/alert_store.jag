@@ -1,0 +1,4 @@
+<%
+    var dataStore = require('../include/commons.jag').dataStore;
+
+%>

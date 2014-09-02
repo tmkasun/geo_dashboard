@@ -398,6 +398,8 @@ function SpatialObject(geoJSON) {
         popupTemplate = $('#markerPopup');
         popupTemplate.find('#objectId').html(this.id);
         popupTemplate.find('#information').html(this.information);
+        popupTemplate.find('#speed').html(this.speed);
+        popupTemplate.find('#heading').html(this.heading);
         this.marker.bindPopup(popupTemplate.html());
     };
     this.update(geoJSON);

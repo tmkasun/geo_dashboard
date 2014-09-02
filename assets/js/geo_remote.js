@@ -38,7 +38,7 @@ function addTileUrl() {
         'maxzoom': maxzoom,
         'subdomains': subdomains
     };
-    var serverUrl = "jaggery/tile_servers.jag";
+    var serverUrl = "controllers/tile_servers.jag";
     // TODO: If failure happens notify user about the error message
     $.post(serverUrl, data, function (response) {
         $.UIkit.notify({
@@ -70,7 +70,7 @@ var baseLayers = {
 function getTileServers() {
     //For reference: returning JSON from server
     // {"serverId" : 44, "url" : "ffsafsa", "name" : "sadsa", "subdomains" : "asfasfsa", "attribution" : "dsfdsfdsf", "maxzoom" : 12}
-    $.getJSON("jaggery/tile_servers.jag?serverId=all", function (data) {
+    $.getJSON("controllers/tile_servers.jag?serverId=all", function (data) {
         $.each(data, function (key, val) {
             $.UIkit.notify({
                 message: 'Loading... <span style="color: #ccfcff">' + val.name + '</span>' +
@@ -151,4 +151,45 @@ function closeAll() {
     setTimeout(function () {
         $.UIkit.offcanvas.hide()
     }, 100);
+}
+
+
+function setSpeedAlert() {
+    var speedAlertValue = $("#speedAlertValue").val();
+    data = {
+        'parseKey': 'speedAlertValue',
+        'parseValue': speedAlertValue,
+        'executionPlan': 'speed',
+        'customName': null
+    };
+    $.post('controllers/set_alerts.jag',data, function (response) {
+        $.UIkit.notify({
+            message: '<span style="color: dodgerblue">' + response.status + '</span><br>'+response.message,
+            status: (response.status == 'success' ? 'success' : 'danger'),
+            timeout: 3000,
+            pos: 'top-center'
+        });
+        closeAll();
+    },'json');
+}
+
+
+function setWithinAlert(leafletId) {
+    var selectedAreaGeoJson = JSON.stringify(map._layers[leafletId].toGeoJSON().geometry).replace(/"/g, "'");
+    data = {
+        'parseKey': 'geoFenceGeoJSON',
+        'parseValue': selectedAreaGeoJson,
+        'executionPlan': 'within',
+        'customName': null
+    };
+    $.post('controllers/set_alerts.jag',data, function (response) {
+        $.UIkit.notify({
+            message: '<span style="color: dodgerblue">' + response.status + '</span><br>'+response.message,
+            status: (response.status == 'success' ? 'success' : 'danger'),
+            timeout: 3000,
+            pos: 'top-center'
+        });
+        closeAll();
+        closeWithinTools(leafletId);
+    },'json');
 }

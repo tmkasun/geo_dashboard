@@ -20,10 +20,13 @@
     <link rel="stylesheet" href="assets/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <!--<link rel="stylesheet" href="assets/css/background.css" type="text/css"/>-->
+    <!-- Leaflet styles -->
     <link rel="stylesheet" href="assets/css/leaflet.css"/>
     <link rel="stylesheet" href="assets/css/L.Control.Locate.css"/>
     <link rel="stylesheet" href="assets/css/MarkerCluster.Default.css"/>
     <link rel="stylesheet" href="assets/css/leaflet_fullscreen/leaflet.fullscreen.css"/>
+    <link rel="stylesheet" href="assets/css/leaflet/leaflet.draw.css"/>
+
     <link rel="stylesheet" href="assets/css/uikit/uikit.min.css"/>
     <link rel="stylesheet" href="assets/css/uikit/addons/uikit.addons.min.css"/>
     <link rel="stylesheet" href="assets/css/jquery-ui.min.css">
@@ -32,12 +35,16 @@
     <script src="assets/js/jquery-2.1.1.min.js"></script>
     <script src="assets/js/jquery-ui.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
-    <script src="assets/js/leaflet.js"></script>
-    <script src="assets/js/leaflet.markercluster.js"></script>
-    <script src="assets/js/L.Control.Locate.js"></script>
-    <script src="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
-    <script src="assets/js/Leaflet.fullscreen.min.js"></script>
+    <!-- Leaflet plugins libries -->
+    <script src="assets/js/leaflet/leaflet.js"></script>
+    <script src="assets/js/leaflet/leaflet.markercluster.js"></script>
+    <script src="assets/js/leaflet/L.Control.Locate.js"></script>
+    <script src="assets/js/leaflet/leaflet.groupedlayercontrol.js"></script>
+    <script src="assets/js/leaflet/Leaflet.fullscreen.min.js"></script>
     <script src="assets/js/leaflet/Marker.Rotate.js"></script>
+    <script src="assets/js/leaflet/leaflet.draw.js"></script>
+
+    <script src="assets/js/typeahead.bundle.min.js"></script>
 
     <!-- UIkit libraries -->
     <script src="assets/js/uikit/uikit.min.js"></script>
@@ -45,6 +52,7 @@
     <!-- Self javascript libraries -->
     <script src="assets/js/websocket.js"></script>
     <script src="assets/js/geo_remote.js"></script>
+    <script src="assets/js/geo_fencing.js"></script>
 
     <style>
         /*
@@ -73,7 +81,14 @@
         }
 
         .leaflet-top {
+            /*To prevent cutting off the top element by header bar in dashboard*/
             top: 50px;
+        }
+
+
+        .leaflet-popup-content{
+            width:auto !important;
+            margin: 6px;
         }
     </style>
 </head>
@@ -141,14 +156,6 @@
                 </ul>
             </li>
 
-            <!-- if want to make a button active set class="uk-active" on onClick event  -->
-            <li>
-                <a id="getActivities" onclick="getActivities()"><i class="fa fa-bell"></i> Show Web Activities</a>
-            </li>
-            <li>
-                <a data-toggle="modal" data-target="#myModal"><i class="fa fa-bell"></i> Testing modal</a>
-            </li>
-
             <li class="uk-parent">
                 <a id="showVehicleHistory" onclick="showVehicleHistory()"><i class="fa fa-calendar"></i> Show
                     Vehicle History</a>
@@ -195,6 +202,23 @@
                         class="fa fa-signal"></i> Fuel Level</a>
             </li>
 
+
+
+            <!-- Alerts section -->
+            <li class="uk-nav-header">Alerts</li>
+            <!-- Set speed limit -->
+            <li>
+                <a data-toggle="modal" data-target="#speedAlert"><i class="fa fa-tachometer"></i> Speed alert</a>
+            </li>
+
+            <li class="uk-parent">
+                <a href="#"><i class="fa fa-filter"></i> Geo-fencing</a>
+                <ul class="uk-nav-sub">
+                    <li><a style="margin-left: 20%;" onclick="openWithinTools()"><i class="fa fa-square-o"></i>    Within</a></li>
+                    <li><a style="margin-left: 20%;" ><i class="fa fa-external-link-square"></i>    Approaching</a></li>
+                    <li><a style="margin-left: 20%;" ><i class="fa fa-minus"></i>    Cross</a></li>
+                </ul>
+            </li>
             <!-- Settings section -->
             <li class="uk-nav-header">Settings</li>
             <!-- Add new tile server url -->
@@ -569,15 +593,104 @@
 </div>
 <!-- /Modals in use -->
 
+<!-- Add speed alert URL modal -->
+<div class="modal" id="speedAlert" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="cursor: move;background: #f9f9f9;-webkit-box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);-moz-box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);">
+                <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <!-- TODO: Trigger bootstrap tooltip $('#aboutTileUrl').tooltip(); to enable tooltip -->
+                    Setup gloable speed alert limit
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <div class="input-group input-group-sm">
+                            <input autofocus="enable" id="speedAlertValue" type="number" class="form-control"
+                                   placeholder="Speed alert value ">
+                            <span class="input-group-addon">km/h</span>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-info pull-right btn-sm" onclick="setSpeedAlert()">Set speed alert</button>
+                        <button type="button" class="btn  btn-default pull-left btn-sm" onclick="$('#speedAlert').modal('hide')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /Modals in use -->
+
+
+<!-- Edit within-GeoJson modal -->
+<div class="modal" id="editWithinGeoJSON" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="cursor: move;background: #f9f9f9;-webkit-box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);-moz-box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);">
+                <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <!-- TODO: Trigger bootstrap tooltip $('#aboutTileUrl').tooltip(); to enable tooltip -->
+                    Edit GeoJson object of the selected area
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="form-group">
+                        <textarea class="form-control" rows="10"></textarea>
+                        <label for="importGeoJsonFile">Import GeoJson</label>
+                        <input id="importGeoJsonFile" type="file">
+                    </div>
+                    <button id="updateGeoJson" class="btn btn-warning" onclick="updateGeoJson(this)">Update</button>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /Modals in use -->
+
 <script src="assets/js/app.js"></script>
 
+<!-- Template HTML components used by JS to inject contents-->
 <div style="display: none">
     <div id="markerPopup" class="popover top">
         <div class="arrow"></div>
-        <h3 class="popover-title">Object ID <span id="objectId"></span></h3>
+        <h3 class="popover-title">ID <span id="objectId"></span></h3>
         <div class="popover-content">
-            <p id="information"></p>
+            <h6>Information<span id="information" class="label label-primary pull-right"></span></h6>
+            <h6>Speed<span class="label label-primary pull-right"><span id="speed" ></span> km/h</span></h6>
+            <h6>Heading<span id="heading" class="label label-primary pull-right"></span></h6>
+            <button type="button" class="btn btn-info btn-xs">History</button>
         </div>
+    </div>
+
+    <div id="setWithinAlert" >
+        <form role="form" style="width: 300px">
+            <div class="form-group">
+                <label for="areaName">Fence name</label>
+                <input class="form-control" id="areaName" placeholder="Enter a name" type="text">
+                <span class="help-block">Can use this name to locate the execution plan</span>
+            </div>
+            <div class="well well-sm">
+                <div class="btn-group btn-group-sm btn-group-justified">
+                    <div class="btn-group">
+                        <button id="addWithinAlert" onclick="setWithinAlert($(this).attr('leaflet_id'))" type="button" class="btn btn-info">Add</button>
+                    </div>
+                    <div class="btn-group">
+                        <button id="editGeoJson" onclick="$('#editWithinGeoJSON #updateGeoJson').attr('leaflet_id',$(this).attr('leaflet_id'));$('#editWithinGeoJSON textarea').text(JSON.stringify(map._layers[$(this).attr('leaflet_id')].toGeoJSON(),null, '\t'));$('#editWithinGeoJSON').modal('toggle')"  type="button" class="btn btn-default">Update</button>
+                    </div>
+                    <div class="btn-group">
+                        <a id="exportGeoJson" download="geoJson.json" href="#" onclick="exportToGeoJSON(this,JSON.stringify(map._layers[$(this).attr('leaflet_id')].toGeoJSON(),null, '\t'))" class="btn btn-default">Export</a>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 </body>

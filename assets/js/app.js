@@ -413,6 +413,39 @@ $("#searchbox").click(function () {
 });
 
 /* Typeahead search functionality */
+var spatialObjects = new Bloodhound({
+    datumTokenizer: function (d) {
+        return Bloodhound.tokenizers.whitespace(d.value);
+    },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    local: $.map(currentSpatialObjects, function (currentSpatialObject) {
+        return { value: currentSpatialObject.id };
+    })
+});
+// kicks off the loading/processing of `local` and `prefetch`
+spatialObjects.initialize();
+
+$(function () {
+    $('#searchbox').typeahead({
+        hint : true,
+        highlight : true,
+        minLength : 1
+    }, {
+        name : 'spatialObjects',
+        displayKey : 'value',
+        source : spatialObjects.ttAdapter()
+    }).on('typeahead:autocompleted', function($e, datum) {
+        selected_value = datum["value"];
+    }).on('typeahead:selected', function($e, datum) {
+        selected_value = datum["value"];
+        for (var spatialObject in currentSpatialObjects) {
+            if (currentSpatialObjects[spatialObject].id == selected_value) {
+                map.setView(currentSpatialObjects[spatialObject].marker.getLatLng(),16);
+            }
+        }
+    });
+
+});
 //$(document).one("ajaxStop", function () {
 //    $("#loading").hide();
 //    /* Fit map to boroughs bounds */

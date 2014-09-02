@@ -1,0 +1,13 @@
+<%
+    var dataStore = require('../include/commons.jag').dataStore;
+	var verb = request.getMethod();
+    var name = request.getParameter('name');
+
+    if(verb == "GET") {
+        var resource = dataStore.get(name);
+        response.contentType = 'application/json';
+        response.characterEncoding = 'UTF-8';
+        response.content = { resource_content : resource.content };
+
+    }
+%>

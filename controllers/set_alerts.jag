@@ -1,0 +1,61 @@
+<%
+    /* Includes */
+    var escapeXml = require('../include/commons.jag').escapeXml;
+    var cepInfo = require('../include/commons.jag').cepInfo;
+    var ws = require('ws');
+
+    var log = new Log();
+
+	var verb = request.getMethod();
+    // TODO: parse execution plan name in XML file as well
+    // TODO: loop through the parseKey value pair and replace the parseKey to value
+    var parseKey = request.getParameter('parseKey');
+    var parseValue = request.getParameter('parseValue');
+    var executionPlan = request.getParameter('executionPlan');
+    var customName = request.getParameter('customName');
+    //log.info(request.getAllParameters("UTF-8")); // To check what parameters we get from the front-end
+    if(verb == "POST") {
+        var path = "../conf/alerts/geo_"+executionPlan+"_alert.xml";
+        var file = new File(path);
+        file.open("r");
+        var template = "";
+        template = file.readAll();
+        var find = "\\$"+parseKey;
+        var re = new RegExp(find, 'g');
+        var updatedTemplate = template.replace(re,parseValue);
+        log.info(updatedTemplate);
+        var escapedTemplate = escapeXml(updatedTemplate);
+        file.close();
+
+        alertStore(parseKey,parseValue);
+        var cep = cepInfo();
+
+        var version = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.2;
+        options.useWSA = 1.0;
+        options.action = "urn:editActiveExecutionPlanConfiguration";
+        var payload =     '<adm:editActiveExecutionPlanConfiguration xmlns:adm="http://admin.processor.event.carbon.wso2.org">'
+                          +      '<adm:configuration>'
+                          +     escapedTemplate
+                          +     '</adm:configuration>'
+                          +     '<adm:name>geo_'+executionPlan+(customName ? '_'+customName : '')+'_alert</adm:name>'
+                          +  '</adm:editActiveExecutionPlanConfiguration>';
+        var result;
+        //log.info(payload);
+        var responseJson = { "status" :"" , "message" : ""};
+        try {
+            version.open(options, "https://"+cep.server+":"+cep.port+"/services/EventProcessorAdminService.EventProcessorAdminServiceHttpsSoap12Endpoint/", false, cep.username, cep.password);
+            version.send(payload);
+            result = version.responseE4X;
+            responseJson.status = "success";
+            responseJson.message = "Query deployed successfully";
+        } catch (e) {
+            responseJson.status = "failed";
+            responseJson.message = "Error occurred while deploying the execution plan";
+            log.error(e.toString());
+        }
+        print(responseJson);
+}
+
+%>
