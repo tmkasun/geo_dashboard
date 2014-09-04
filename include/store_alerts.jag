@@ -1,0 +1,42 @@
+<%
+    var dataStore = require('../include/commons.jag').dataStore;
+    var log = new Log();
+
+    function store(parseKey,parseValue,executionPlan,optional) {
+        log.info("DEBUG:*** parseValue:"+parseValue);
+        if(executionPlan == "speed"){
+            var currentLimit;
+            try{
+                currentLimit = dataStore.get("speed.json");
+            }
+            catch(e){
+                log.info("DEBUG:*** Catch error:"+e.message);
+                currentLimit = dataStore.newResource();
+                currentLimit.mediaType = 'application/json';
+                currentLimit.description = "User define speed limit for display alerts.";
+            }
+            currentLimit.content = String('{"speedLimit": '+parseValue+'}');
+            dataStore.put("speed.json",currentLimit);
+            log.info("DEBUG:*** Current speed limit set to:"+currentLimit.content);
+        }
+        else if(executionPlan == "within"){
+            var geoAlertsCollection;
+            try{
+                var res = dataStore.get("geo/alerts");
+            }
+            catch(e){
+                var geo = dataStore.newCollection();
+                var alerts = dataStore.newCollection();
+                dataStore.put("geo", geo);
+                dataStore.put("alerts", alerts);
+            }
+            log.info("DEBUG:****** parseValue = "+String('{"geoJson": '+parseValue+'}'));
+            var resource = dataStore.newResource();
+            resource.addProperty("queryName", optional.queryName);
+            resource.addProperty("areaName", optional.customName);
+            resource.mediaType = 'application/json';
+            resource.content = String(parseValue);
+            dataStore.put(String("geo/alerts/"+optional.queryName+".json"), resource);
+        }
+    }
+%>

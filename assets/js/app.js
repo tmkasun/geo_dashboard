@@ -3,6 +3,11 @@ $(".modal").draggable({
     handle: ".modal-header"
 });
 
+//Clear modal content for reuse the wrapper by other functions
+$('body').on('hidden.bs.modal', '.modal', function () {
+    $(this).removeData('bs.modal');
+});
+
 /*Map layer configurations*/
 var map, featureList, boroughSearch = [], theaterSearch = [], museumSearch = [];
 
@@ -248,6 +253,33 @@ var theaters = L.geoJson(null, {
 //  map.addLayer(theaterLayer);
 //});
 
+var browserLatitude;
+var browserLongitude;
+function success(position) {
+    browserLatitude  = position.coords.latitude;
+    browserLongitude = position.coords.longitude;
+
+    $.UIkit.notify({
+        message: "Setting map view to browser location....",
+        status: 'info',
+        timeout: 3000,
+        pos: 'top-center'
+    });
+
+    map.setView([browserLatitude,browserLongitude]);
+    map.setZoom(13);
+};
+
+function error() {
+    $.UIkit.notify({
+        message: "Unable to find browser location!",
+        status: 'warning',
+        timeout: 3000,
+        pos: 'top-center'
+    });
+};
+
+navigator.geolocation.getCurrentPosition(success, error);
 
 initializeMap();
 
@@ -310,25 +342,6 @@ var museums = L.geoJson(null, {
 //  museums.addData(data);
 //});
 
-/* Layer control listeners that allow for a single markerClusters layer */
-map.on("overlayadd", function (e) {
-    if (e.layer === theaterLayer) {
-        markerClusters.addLayer(theaters);
-    }
-    if (e.layer === museumLayer) {
-        markerClusters.addLayer(museums);
-    }
-});
-
-map.on("overlayremove", function (e) {
-    if (e.layer === theaterLayer) {
-        markerClusters.removeLayer(theaters);
-    }
-    if (e.layer === museumLayer) {
-        markerClusters.removeLayer(museums);
-    }
-});
-
 /* Clear feature highlight when map is clicked */
 map.on("click", function (e) {
     highlight.clearLayers();
@@ -364,19 +377,21 @@ var zoomControl = L.control.zoom({
 }).addTo(map);
 
 /* GPS enabled geolocation control set to follow the user's location */
-var locateControl = L.control.locate({
-    drawCircle: false,
-    showPopup: false,
-    setView: true,
-    keepCurrentZoomLevel: true,
-    metric: true,
-    locateOptions: {
-        maxZoom: 18,
-        watch: true,
-        enableHighAccuracy: true
-    }
-}).addTo(map);
-locateControl.locate();
+/* TODO: for reference only remove if not use */
+//var locateControl = L.control.locate({
+//    drawCircle: false,
+//    showPopup: false,
+//    setView: true,
+//    keepCurrentZoomLevel: true,
+//    metric: true,
+//    locateOptions: {
+//        maxZoom: 18,
+//        watch: true,
+//        enableHighAccuracy: true
+//    }
+//}).addTo(map);
+//locateControl.locate();
+
 /* Larger screens get expanded layer control and visible sidebar */
 if (document.body.clientWidth <= 767) {
     var isCollapsed = true;

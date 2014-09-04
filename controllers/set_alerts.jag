@@ -2,6 +2,7 @@
     /* Includes */
     var escapeXml = require('../include/commons.jag').escapeXml;
     var cepInfo = require('../include/commons.jag').cepInfo;
+    var storeAlerts = require('../include/store_alerts.jag').store;
     var ws = require('ws');
 
     var log = new Log();
@@ -12,6 +13,7 @@
     var parseKey = request.getParameter('parseKey');
     var parseValue = request.getParameter('parseValue');
     var executionPlan = request.getParameter('executionPlan');
+    var queryName = request.getParameter('queryName');
     var customName = request.getParameter('customName');
     //log.info(request.getAllParameters("UTF-8")); // To check what parameters we get from the front-end
     if(verb == "POST") {
@@ -27,7 +29,9 @@
         var escapedTemplate = escapeXml(updatedTemplate);
         file.close();
 
-        alertStore(parseKey,parseValue);
+        optionalArgs = {"queryName": queryName,"customName": customName};
+        storeAlerts(parseKey,parseValue,executionPlan,optionalArgs);
+
         var cep = cepInfo();
 
         var version = new ws.WSRequest();
@@ -39,7 +43,8 @@
                           +      '<adm:configuration>'
                           +     escapedTemplate
                           +     '</adm:configuration>'
-                          +     '<adm:name>geo_'+executionPlan+(customName ? '_'+customName : '')+'_alert</adm:name>'
+                          //+     '<adm:name>geo_'+executionPlan+(queryName ? '_'+queryName : '')+'_alert</adm:name>' // TODO: uncomment this line when have ability to use multiple within filters
+                          +     '<adm:name>geo_'+executionPlan+'_alert</adm:name>'
                           +  '</adm:editActiveExecutionPlanConfiguration>';
         var result;
         //log.info(payload);

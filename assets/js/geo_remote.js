@@ -175,12 +175,19 @@ function setSpeedAlert() {
 
 
 function setWithinAlert(leafletId) {
+    /*
+    * TODO: replace double quote to single quote because of a conflict when deploying execution plan in CEP
+    * this is against JSON standards so has been re-replaced when getting the data from governance registry
+    * (look in get_alerts for .replace() method)
+     * */
     var selectedAreaGeoJson = JSON.stringify(map._layers[leafletId].toGeoJSON().geometry).replace(/"/g, "'");
+
     data = {
         'parseKey': 'geoFenceGeoJSON',
         'parseValue': selectedAreaGeoJson,
         'executionPlan': 'within',
-        'customName': null
+        'customName': $("#areaName").val(), // TODO: fix , When template copies there can be two queryName and areaName id elements in the DOM
+        'queryName': $("#queryName").val()
     };
     $.post('controllers/set_alerts.jag',data, function (response) {
         $.UIkit.notify({
@@ -189,6 +196,7 @@ function setWithinAlert(leafletId) {
             timeout: 3000,
             pos: 'top-center'
         });
+        map.removeLayer(map._layers[leafletId]);
         closeAll();
         closeWithinTools(leafletId);
     },'json');

@@ -180,6 +180,7 @@
                 </div>
             </li>
 
+            <!-- Place holders need to remove or replace-->
             <li class="uk-parent">
                 <a onclick="changeMap()"><i class="fa fa-exchange"></i> Change Map
                     Type</a>
@@ -196,29 +197,30 @@
                 </div>
             </li>
 
+            <!-- Place holders need to remove or replace-->
             <li>
                 <!-- fa fa-tachometer -->
                 <a id="get_administrators" onclick="window.location.href = 'features/displayEngineFuelState.php'"><i
                         class="fa fa-signal"></i> Fuel Level</a>
             </li>
 
-
-
             <!-- Alerts section -->
             <li class="uk-nav-header">Alerts</li>
             <!-- Set speed limit -->
             <li>
-                <a data-toggle="modal" data-target="#speedAlert"><i class="fa fa-tachometer"></i> Speed alert</a>
+                <a data-toggle="modal" href="controllers/modals/speed_alert.jag" data-target="#commonModal"><i class="fa fa-tachometer"></i> Speed alert</a>
             </li>
 
+            <!-- Set Geo-fence -->
             <li class="uk-parent">
                 <a href="#"><i class="fa fa-filter"></i> Geo-fencing</a>
                 <ul class="uk-nav-sub">
-                    <li><a style="margin-left: 20%;" onclick="openWithinTools()"><i class="fa fa-square-o"></i>    Within</a></li>
+                    <li><a style="margin-left: 20%;" data-toggle="modal" href="controllers/modals/within_alert.jag" data-target="#commonModal"><i class="fa fa-square-o"></i>    Within</a></li>
                     <li><a style="margin-left: 20%;" ><i class="fa fa-external-link-square"></i>    Approaching</a></li>
                     <li><a style="margin-left: 20%;" ><i class="fa fa-minus"></i>    Cross</a></li>
                 </ul>
             </li>
+
             <!-- Settings section -->
             <li class="uk-nav-header">Settings</li>
             <!-- Add new tile server url -->
@@ -593,32 +595,11 @@
 </div>
 <!-- /Modals in use -->
 
-<!-- Add speed alert URL modal -->
-<div class="modal" id="speedAlert" tabindex="-1" role="dialog">
+<!-- General modal placeholder , TODO: open all the modal through this wrapper via remote AJAX calls -->
+<div class="modal" id="commonModal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header" style="cursor: move;background: #f9f9f9;-webkit-box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);-moz-box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);box-shadow: inset 0px 0px 14px 1px rgba(0,0,0,0.2);">
-                <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">
-                    <!-- TODO: Trigger bootstrap tooltip $('#aboutTileUrl').tooltip(); to enable tooltip -->
-                    Setup gloable speed alert limit
-                </h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6 col-md-offset-3">
-                        <div class="input-group input-group-sm">
-                            <input autofocus="enable" id="speedAlertValue" type="number" class="form-control"
-                                   placeholder="Speed alert value ">
-                            <span class="input-group-addon">km/h</span>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <button type="button" class="btn btn-info pull-right btn-sm" onclick="setSpeedAlert()">Set speed alert</button>
-                        <button type="button" class="btn  btn-default pull-left btn-sm" onclick="$('#speedAlert').modal('hide')">Cancel</button>
-                    </div>
-                </div>
-            </div>
+            <!-- This content is load by $.ajax call , pages are located at '/controllers/modals/' -->
         </div>
         <!-- /.modal-content -->
     </div>
@@ -627,7 +608,7 @@
 <!-- /Modals in use -->
 
 
-<!-- Edit within-GeoJson modal -->
+<!-- Import within-GeoJson modal -->
 <div class="modal" id="editWithinGeoJSON" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -641,11 +622,20 @@
             <div class="modal-body">
                 <div class="form-group">
                     <div class="form-group">
-                        <textarea class="form-control" rows="10"></textarea>
-                        <label for="importGeoJsonFile">Import GeoJson</label>
+                        <label class="text-primary" for="enterGeoJson">Enter GeoJson</label>
+                        <textarea id="enterGeoJson" class="form-control" rows="10"></textarea>
+                        <hr/>
+                        <label class="text-primary" for="importGeoJsonFile">Import GeoJson</label>
                         <input id="importGeoJsonFile" type="file">
                     </div>
-                    <button id="updateGeoJson" class="btn btn-warning" onclick="updateGeoJson(this)">Update</button>
+                </div>
+                <div class="btn-group btn-group-justified">
+                    <div class="btn-group">
+                        <button id="updateGeoJson" class="btn btn-primary" onclick="importGeoJson()">Import</button>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn  btn-default" onclick="closeAll()">Cancel</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -673,25 +663,30 @@
     <div id="setWithinAlert" >
         <form role="form" style="width: 300px">
             <div class="form-group">
-                <label for="areaName">Fence name</label>
-                <input class="form-control" id="areaName" placeholder="Enter a name" type="text">
+                <label class="text-primary" for="queryName">Query name</label>
+                <input class="form-control" id="queryName" placeholder="Query name" type="text">
                 <span class="help-block">Can use this name to locate the execution plan</span>
+
+                <label class="text-primary" for="areaName">Fence name</label>
+                <input class="form-control" id="areaName" placeholder="Fence name" type="text">
+                <span class="help-block">Name of the selected area(i.e colombo)</span>
             </div>
-            <div class="well well-sm">
+            <div>
                 <div class="btn-group btn-group-sm btn-group-justified">
                     <div class="btn-group">
-                        <button id="addWithinAlert" onclick="setWithinAlert($(this).attr('leaflet_id'))" type="button" class="btn btn-info">Add</button>
+                        <button id="addWithinAlert" onclick="setWithinAlert($(this).attr('leaflet_id'))" type="button" class="btn btn-info btn-xs" data-toggle="tooltip" data-placement="left" title="Save selected area for alerts">Save</button>
                     </div>
                     <div class="btn-group">
-                        <button id="editGeoJson" onclick="$('#editWithinGeoJSON #updateGeoJson').attr('leaflet_id',$(this).attr('leaflet_id'));$('#editWithinGeoJSON textarea').text(JSON.stringify(map._layers[$(this).attr('leaflet_id')].toGeoJSON(),null, '\t'));$('#editWithinGeoJSON').modal('toggle')"  type="button" class="btn btn-default">Update</button>
+                        <button id="editGeoJson" onclick="$('#editWithinGeoJSON #updateGeoJson').attr('leaflet_id',$(this).attr('leaflet_id'));$('#editWithinGeoJSON textarea').text(JSON.stringify(map._layers[$(this).attr('leaflet_id')].toGeoJSON(),null, '\t'));$('#editWithinGeoJSON').modal('toggle')"  type="button" class="btn btn-default btn-xs">Edit</button>
                     </div>
                     <div class="btn-group">
-                        <a id="exportGeoJson" download="geoJson.json" href="#" onclick="exportToGeoJSON(this,JSON.stringify(map._layers[$(this).attr('leaflet_id')].toGeoJSON(),null, '\t'))" class="btn btn-default">Export</a>
+                        <a id="exportGeoJson" download="geoJson.json" href="#" onclick="exportToGeoJSON(this,JSON.stringify(map._layers[$(this).attr('leaflet_id')].toGeoJSON(),null, '\t'))" class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="left" title="Export selected area as a geoJson file">Export</a>
                     </div>
                 </div>
             </div>
         </form>
     </div>
+    <div id="templateLoader"></div>
 </div>
 </body>
 </html>

@@ -1,13 +1,47 @@
 <%
     var dataStore = require('../include/commons.jag').dataStore;
 	var verb = request.getMethod();
-    var name = request.getParameter('name');
+    var resourceName = request.getParameter('name');
+    var webService = request.getParameter('service');
 
-    if(verb == "GET") {
-        var resource = dataStore.get(name);
-        response.contentType = 'application/json';
-        response.characterEncoding = 'UTF-8';
-        response.content = { resource_content : resource.content };
+    var log = new Log();
 
+    if(webService) {
+            response.contentType = 'application/json';
+            response.characterEncoding = 'UTF-8';
+            response.content = { resource : get(resourceName) };
     }
+
+    function get(name){
+        if(name == 'within'){
+            try{
+                var res = dataStore.get("geo/alerts/");
+            }
+            catch(e){
+                log.info(e.message);
+                return false;
+            }
+            var allFences = [];
+            for each (var resource in res.getChildren()) {
+                var fence = {};
+                try{
+                    fence['geoJson'] = JSON.parse(dataStore.get(resource).content.replace(/'/g, '"'));
+                    fence['queryName'] = dataStore.get(resource).getProperty('queryName');
+                    fence['areaName'] = dataStore.get(resource).getProperty('areaName');
+                    allFences.push(fence);
+                }
+                catch(e){
+                    print("Error: "+e+'\n');
+                }
+            }
+            return allFences;
+        }
+        else if(name == 'speed'){
+            var resource = dataStore.get(name+'.json');
+            log.info("DEBUG:***** name = "+name);
+            log.info("DEBUG:***** resource.content = "+resource.content);
+            return JSON.parse(resource.content);
+        }
+    }
+
 %>

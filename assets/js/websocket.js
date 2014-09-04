@@ -355,6 +355,13 @@ var defaultIcon =  L.icon({
 
 function SpatialObject(geoJSON) {
     this.id = geoJSON.id;
+    this.pathGeoJson = {
+        "type": "LineString",
+        "coordinates": []
+    };
+    this.path = function () {
+        return L.geoJson(this.pathGeoJson);
+    };
     this.geoJson = L.geoJson(geoJSON, {
         pointToLayer: function (feature, latlng) {
             return L.marker(latlng,{icon:normalIcon,iconAngle: this.heading});
