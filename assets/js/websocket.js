@@ -1,7 +1,8 @@
 /**
  * Created by kbsoft on 8/13/14.
  */
-var tempDebug;
+var debugObject; // assign object and debug from browser console
+var showPathFlag  = false; // Flag to hold the status of draw objects path
 var currentSpatialObjects = {};
 var websocket = new WebSocket('ws://localhost:9764/outputwebsocket/DefaultWebsocketOutputAdaptor/geoDataEndPoint');
 
@@ -17,10 +18,6 @@ websocket.onopen = function () {
 
 websocket.onmessage = function processMessage(message) {
     var geojsonFeature = $.parseJSON(message.data);
-//    console.log(JSON.stringify(geojsonFeature));
-
-//    console.log(tempDebug.heading);
-
     if (geojsonFeature.id in currentSpatialObjects) {
         exsitingObject = currentSpatialObjects[geojsonFeature.id];
         exsitingObject.update(geojsonFeature);
@@ -29,8 +26,6 @@ websocket.onmessage = function processMessage(message) {
         var receivedObject = new SpatialObject(geojsonFeature);
         currentSpatialObjects[receivedObject.id] = receivedObject;
         currentSpatialObjects[receivedObject.id].addTo(map);
-        tempDebug = receivedObject;
-
     }
 
     return false;
@@ -355,12 +350,11 @@ var defaultIcon =  L.icon({
 
 function SpatialObject(geoJSON) {
     this.id = geoJSON.id;
+
+    // Have to store the coordinates , to use when user wants to draw path
     this.pathGeoJson = {
         "type": "LineString",
         "coordinates": []
-    };
-    this.path = function () {
-        return L.geoJson(this.pathGeoJson);
     };
     this.geoJson = L.geoJson(geoJSON, {
         pointToLayer: function (feature, latlng) {
@@ -392,6 +386,23 @@ function SpatialObject(geoJSON) {
         }
 
     };
+    this.updatePath = function (LatLng) {
+        if(!this.path)
+            throw "geoDashboard error: Draw a path before updating it"; // Can't update without drawing a path
+        this.path.addLatLng(LatLng);
+    };
+
+    this.drawPath = function () {
+        if(this.path)
+            throw "geoDashboard error: path already exist,remove current path before drawing a new path, if need to update LatLngs use setLatLngs method instead"; // Path already exist
+        this.path = new L.polyline(this.pathGeoJson.coordinates,{color: 'blue',weight: 5}); // Create path object when and only drawing the path (save memory)
+        this.path.addTo(map);
+    };
+
+    this.removePath = function () {
+        map.removeLayer(this.path);
+        this.path = null; // Clear the path layer (save memory)
+    };
     this.update = function (geoJSON) {
         this.latitude = geoJSON.geometry.coordinates[1];
         this.longitude = geoJSON.geometry.coordinates[0];
@@ -402,6 +413,12 @@ function SpatialObject(geoJSON) {
         this.marker.setLatLng([this.latitude, this.longitude]);
         this.marker.setIconAngle(this.heading);
         this.marker.setIcon(this.stateIcon());
+        // wired o.O but to prevent conflicts in
+        // Leaflet(http://leafletjs.com/reference.html#latlng) and geoJson standards(http://geojson.org/geojson-spec.html#id2),
+        // have to do this swapping, but the resulting geoJson in not upto geoJson standards
+        this.pathGeoJson.coordinates.push([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
+        if(showPathFlag)
+            this.updatePath([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
         popupTemplate = $('#markerPopup');
         popupTemplate.find('#objectId').html(this.id);
         popupTemplate.find('#information').html(this.information);

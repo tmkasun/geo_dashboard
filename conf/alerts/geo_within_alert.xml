@@ -10,7 +10,7 @@
     <stream as="dataIn" name="ObjectLocationStream" version="1.0.0"/>
   </importedStreams>
   <queryExpressions><![CDATA[from dataIn[geo:iswithin(longitude,latitude,"$geoFenceGeoJSON")==true]
-select id , latitude, longitude, speed, heading, "ALERTED" as state, "This vehicle is in the restricted area!!!" as information
+select id , latitude, longitude, speed, heading, "ALERTED" as state, "This vehicle is in a restricted area!!!" as information
 insert into dataOut;
 from dataIn[geo:iswithin(longitude,latitude,"$geoFenceGeoJSON")!=true]
 select id , latitude, longitude, speed, heading, state, information

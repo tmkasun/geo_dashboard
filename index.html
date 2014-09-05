@@ -85,11 +85,11 @@
             top: 50px;
         }
 
-
         .leaflet-popup-content{
             width:auto !important;
             margin: 6px;
         }
+
     </style>
 </head>
 
@@ -122,7 +122,7 @@
         </ul>
         <form id="mapSearch" class="navbar-form navbar-right" role="search">
             <div class="form-group has-feedback navbar-right">
-                <input id="searchbox" type="text" placeholder="Search" class="form-control">
+                <input id="searchbox" type="text" placeholder="Search" class="form-control typeahead">
                 <span id="searchicon" class="fa fa-search form-control-feedback"></span>
             </div>
         </form>
@@ -181,27 +181,36 @@
             </li>
 
             <!-- Place holders need to remove or replace-->
-            <li class="uk-parent">
-                <a onclick="changeMap()"><i class="fa fa-exchange"></i> Change Map
-                    Type</a>
-
-                <div style="overflow: hidden; height: 0; position: relative;">
-                    <ul class="uk-nav-sub">
-                        <li>
-                            <a href="">Sub item</a>
-                        </li>
-                        <li>
-                            <a href="">Sub item</a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <!-- Place holders need to remove or replace-->
             <li>
                 <!-- fa fa-tachometer -->
                 <a id="get_administrators" onclick="window.location.href = 'features/displayEngineFuelState.php'"><i
                         class="fa fa-signal"></i> Fuel Level</a>
+            </li>
+
+            <!-- Choose map display options -->
+            <li class="uk-parent">
+                <a href="#"><i class="fa fa-check-square-o"></i> Display options</a>
+                <ul class="uk-nav-sub">
+                    <li><a style="margin-left: 20%;" ><input id="showPathCheck" type="checkbox" />  <label style="cursor: pointer;" for="showPathCheck">Show path</label></a></li>
+                    <li><a style="margin-left: 20%;" ><i class="fa fa-area-chart"></i>    Show speed graph</a></li>
+                </ul>
+                <script>
+                    // TODO: move this script to proper place
+                    $('#showPathCheck').change(function() {
+                        if(this.checked) {
+                            for (spatialObject in currentSpatialObjects) {
+                                currentSpatialObjects[spatialObject].drawPath();
+                                showPathFlag = true;
+                            }
+                        }
+                        else{
+                            for (spatialObject in currentSpatialObjects) {
+                                currentSpatialObjects[spatialObject].removePath();
+                                showPathFlag = false;
+                            }
+                        }
+                    });
+                </script>
             </li>
 
             <!-- Alerts section -->
@@ -622,11 +631,12 @@
             <div class="modal-body">
                 <div class="form-group">
                     <div class="form-group">
-                        <label class="text-primary" for="enterGeoJson">Enter GeoJson</label>
-                        <textarea id="enterGeoJson" class="form-control" rows="10"></textarea>
-                        <hr/>
                         <label class="text-primary" for="importGeoJsonFile">Import GeoJson</label>
                         <input id="importGeoJsonFile" type="file">
+                        <hr/>
+
+                        <label class="text-primary" for="enterGeoJson">Enter GeoJson</label>
+                        <textarea id="enterGeoJson" class="form-control" rows="10"></textarea>
                     </div>
                 </div>
                 <div class="btn-group btn-group-justified">

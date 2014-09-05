@@ -1,7 +1,6 @@
 /**
  * Created by kbsoft on 8/29/14.
  */
-var debugObject;
 var drawControl;
 function openWithinTools() {
     closeAll();
@@ -127,7 +126,6 @@ function exportToGeoJSON(link,content) {
 
 $(function() {
     $("#importGeoJsonFile").change(function (){
-        debugObject = this;
         var importedFile = this.files[0];
         var reader = new FileReader();
         reader.readAsText(importedFile);
@@ -210,7 +208,6 @@ function viewFence(geoFenceElement) {
 
     $('#templateLoader').load("assets/html_templates/view_fence_popup.html #viewWithinAlert", function () {
         popupTemplate = $('#templateLoader').find('#viewWithinAlert');
-        debugObject = popupTemplate;
         popupTemplate.find('#exportGeoJson').attr('leaflet_id',polygon._leaflet_id);
         popupTemplate.find('#hideViewFence').attr('leaflet_id',polygon._leaflet_id);
         popupTemplate.find('#viewAreaName').html(areaName);
