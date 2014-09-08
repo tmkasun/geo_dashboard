@@ -360,8 +360,11 @@ function SpatialObject(geoJSON) {
         pointToLayer: function (feature, latlng) {
             return L.marker(latlng,{icon:normalIcon,iconAngle: this.heading});
         }
-    });
+    }); // Create Leaflet GeoJson object
+
     this.marker = this.geoJson.getLayers()[0];
+    this.popupTemplate = $('#markerPopup');
+    this.marker.bindPopup(this.popupTemplate.html());
 
     /* Method definitions */
     this.addTo = function (map) {
@@ -419,12 +422,13 @@ function SpatialObject(geoJSON) {
         this.pathGeoJson.coordinates.push([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
         if(showPathFlag)
             this.updatePath([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
-        popupTemplate = $('#markerPopup');
-        popupTemplate.find('#objectId').html(this.id);
-        popupTemplate.find('#information').html(this.information);
-        popupTemplate.find('#speed').html(this.speed);
-        popupTemplate.find('#heading').html(this.heading);
-        this.marker.bindPopup(popupTemplate.html());
+        this.popupTemplate.find('#objectId').html(this.id);
+        this.popupTemplate.find('#information').html(this.information);
+        this.popupTemplate.find('#speed').html(this.speed);
+        this.popupTemplate.find('#heading').html(this.heading);
+        this.marker._popup.setContent(this.popupTemplate.html())
+
+
     };
     this.update(geoJSON);
     return this;

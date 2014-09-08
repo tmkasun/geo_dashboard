@@ -18,13 +18,27 @@ var get = require('../get_alerts.jag').get;
 <div class="modal-body">
     <div class="row">
         <p class="text-info text-center">View current fences</p>
-        <div class="list-group well well-sm">
+        <div class="">
+        <table class="table table-hover">
+              <thead>
+                <tr >
+                  <th>Fence Name</th>
+                  <th>Query Name</th>
+                  <th>Created On</th>
+                </tr>
+              </thead>
+              <tbody>
+
             <%
                 var alerts = get('within');
                 if(alerts){
                     for each(var alert in alerts){
                         %>
-                          <a class="list-group-item" data-areaName='<%= alert.areaName %>' data-queryName='<%= alert.queryName %>' data-geoJson='<%= alert.geoJson %>' onClick = "viewFence(this)" >Query name <span class="text-primary"><%= alert.queryName %></span> has defined for <span class="text-warning"><%= alert.areaName %></span> area.</a>
+              <tr style="cursor: pointer" data-areaName='<%= alert.areaName %>' data-queryName='<%= alert.queryName %>' data-geoJson='<%= alert.geoJson %>' onClick = "viewFence(this)">
+                                <td><%= alert.areaName %></td>
+                                <td><%= alert.queryName %></td>
+                                <td>N/A</td>
+              </tr>
                         <%
                     }
                 }
@@ -36,6 +50,8 @@ var get = require('../get_alerts.jag').get;
                 <%
                 }
             %>
+            </tbody>
+                        </table>
         </div>
         <div style="margin-bottom: -15px" class="btn-group btn-group-justified">
             <div class="btn-group">
