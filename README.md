@@ -16,16 +16,20 @@ A simple, responsive template for building web mapping applications with [Bootst
 
 ### Screenshots:
 
-![Desktop]()
+* Interactive markers
+![Interactive markers](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2011:52:50.png)
 
-![Desktop Search]()
+* Draw a fence
+![Draw a fence](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2011:10:32.png)
 
-![Desktop Popup]()
+* View defined fences
+![View defined fences](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2012:29:05.png)
 
-![Mobile]()
+* Import geoJson file
+![Import geoJson file](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2011:07:18.png)
 
-![Mobile Popup]()
+* Add tile servers
+![Add tile servers](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2011:11:26.pn)
 
-![Mobile Search]()
-
-![Mobile Menu]()
+* Mobile Popup
+![Mobile Popup](http://geo.knnect.com/geo_github_screenshots/mobile.png)
