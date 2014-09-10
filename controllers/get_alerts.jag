@@ -28,6 +28,7 @@
                     fence['geoJson'] = JSON.parse(dataStore.get(resource).content.replace(/'/g, '"'));
                     fence['queryName'] = dataStore.get(resource).getProperty('queryName');
                     fence['areaName'] = dataStore.get(resource).getProperty('areaName');
+                    fence['createdTime'] = dataStore.get(resource).createdTime.toString();
                     allFences.push(fence);
                 }
                 catch(e){

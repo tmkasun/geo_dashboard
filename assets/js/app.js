@@ -276,6 +276,34 @@ var substringMatcher = function() {
     };
 };
 
+
+var chart;
+var speedArray = ['speed'];
+function createChart() {
+    chart = c3.generate({
+        bindto: '#chart_div',
+        data: {
+            columns: [
+                speedArray
+            ]
+        },
+        subchart: {
+            show: true
+        },
+        axis: {
+            y: {
+                label: {
+                    text: 'Speed',
+                    position: 'outer-middle'
+                }
+            }
+        },
+        legend: {
+            show: false
+        }
+    });
+}
+
 $('#searchbox').typeahead({
         hint: true,
         highlight: true,
@@ -286,14 +314,25 @@ $('#searchbox').typeahead({
         displayKey: 'value',
         source: substringMatcher()
     }).on('typeahead:selected', function($e, datum) {
-        spatialObject = currentSpatialObjects[datum['value']];
-        map.setView(spatialObject.marker.getLatLng(),17); // TODO: check the map._layersMaxZoom and set the zoom level accordingly
-        spatialObject.marker.openPopup();
-        spatialObject.drawPath();
+        objectId = datum['value'];
+        focuseOnSpatialObject(objectId)
     });
 
 
+function focuseOnSpatialObject(objectId){
+    selectedSpatialObject = objectId;
+    spatialObject = currentSpatialObjects[selectedSpatialObject];
+    map.setView(spatialObject.marker.getLatLng(),17,{animate: true}); // TODO: check the map._layersMaxZoom and set the zoom level accordingly
+    setTimeout(function () {
+        spatialObject.marker.openPopup();
+    },100);
+    setTimeout(function () {
+        $('#objectInfo').animate({width:'toggle'},200);
+        createChart();
+    },500);
+    spatialObject.drawPath();
 
+}
 
 
 

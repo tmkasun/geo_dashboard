@@ -37,7 +37,7 @@ var get = require('../get_alerts.jag').get;
               <tr style="cursor: pointer" data-areaName='<%= alert.areaName %>' data-queryName='<%= alert.queryName %>' data-geoJson='<%= alert.geoJson %>' onClick = "viewFence(this)">
                                 <td><%= alert.areaName %></td>
                                 <td><%= alert.queryName %></td>
-                                <td>N/A</td>
+                                <td><%= alert.createdTime %></td>
               </tr>
                         <%
                     }
