@@ -32,6 +32,9 @@
     <link rel="stylesheet" href="assets/css/jquery-ui.min.css">
     <link rel="stylesheet" href="assets/css/jquery-ui.theme.min.css">
 
+    <!-- C3 chart library styles-->
+    <link rel="stylesheet" href="assets/css/d3/c3.css">
+
     <script src="assets/js/jquery-2.1.1.min.js"></script>
     <script src="assets/js/jquery-ui.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
@@ -45,6 +48,11 @@
     <script src="assets/js/leaflet/leaflet.draw.js"></script>
 
     <script src="assets/js/typeahead.bundle.min.js"></script>
+
+
+    <!-- C3 charting library using D3 core -->
+    <script src="assets/js/d3/d3.min.js"></script>
+    <script src="assets/js/d3/c3.min.js"></script>
 
     <!-- UIkit libraries -->
     <script src="assets/js/uikit/uikit.min.js"></script>
@@ -136,6 +144,49 @@
     <!--/.navbar-collapse -->
 </nav>
 
+
+
+
+
+
+
+
+
+
+
+<div id="objectInfo" style="background: none repeat scroll 0% 0% rgba(85, 250, 206, 0.2);display: none;border-radius: 13px;z-index: 1000;height: 94%;padding: 0px" class="col-md-2 pull-right" >
+    <div class="panel panel-default" style="max-height: 47%;overflow: auto;box-shadow: 0px 0px 8px 0px #635749">
+        <div class="panel-heading text-center"><h4>Speed variation<i style="cursor: pointer;" onclick="$('#objectInfo').animate({width:'toggle'},200);spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;" class="fa fa-times pull-right"></i></h4>
+        </div>
+        <div class="panel-body">
+            <div style="margin: 0;border: none" id="chart_div"></div>
+        </div>
+    </div>
+
+    <div class="panel panel-default" style="max-height: 47%;overflow: auto;box-shadow: 0px 0px 8px 0px #635749">
+        <div class="panel-heading text-center"><div class="panel-title"><h4>Alerts</h4></div></div>
+        <div class="panel-body">
+
+
+        </div>
+    </div><!--/panel-->
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <div id="left_side_pannel" class="uk-offcanvas">
     <div class="uk-offcanvas-bar" style="box-shadow: 3px 14px 13px -2px #211404;">
         <ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav>
@@ -156,36 +207,37 @@
                 </ul>
             </li>
 
-            <li class="uk-parent">
-                <a id="showVehicleHistory" onclick="showVehicleHistory()"><i class="fa fa-calendar"></i> Show
-                    Vehicle History</a>
+            <!-- Place holders need to remove or replace-->
+            <!--<li class="uk-parent">-->
+            <!--<a id="showVehicleHistory" onclick="showVehicleHistory()"><i class="fa fa-calendar"></i> Show-->
+            <!--Vehicle History</a>-->
 
-                <div style="overflow: hidden; height: 0; position: relative;">
-                    <ul class="uk-nav-sub">
-                        <li>
-                            <a href="">Sub item</a>
-                        </li>
-                        <li>
-                            <a href="">Sub item</a>
-                            <ul>
-                                <li>
-                                    <a href="">Sub item</a>
-                                </li>
-                                <li>
-                                    <a href="">Sub item</a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </li>
+            <!--<div style="overflow: hidden; height: 0; position: relative;">-->
+            <!--<ul class="uk-nav-sub">-->
+            <!--<li>-->
+            <!--<a href="">Sub item</a>-->
+            <!--</li>-->
+            <!--<li>-->
+            <!--<a href="">Sub item</a>-->
+            <!--<ul>-->
+            <!--<li>-->
+            <!--<a href="">Sub item</a>-->
+            <!--</li>-->
+            <!--<li>-->
+            <!--<a href="">Sub item</a>-->
+            <!--</li>-->
+            <!--</ul>-->
+            <!--</li>-->
+            <!--</ul>-->
+            <!--</div>-->
+            <!--</li>-->
 
             <!-- Place holders need to remove or replace-->
-            <li>
-                <!-- fa fa-tachometer -->
-                <a id="get_administrators" onclick="window.location.href = 'features/displayEngineFuelState.php'"><i
-                        class="fa fa-signal"></i> Fuel Level</a>
-            </li>
+            <!--<li>-->
+            <!--&lt;!&ndash; fa fa-tachometer &ndash;&gt;-->
+            <!--<a id="get_administrators" onclick="window.location.href = 'features/displayEngineFuelState.php'"><i-->
+            <!--class="fa fa-signal"></i> Fuel Level</a>-->
+            <!--</li>-->
 
             <!-- Choose map display options -->
             <li class="uk-parent">
@@ -241,15 +293,17 @@
                 <a data-toggle="modal" data-target="#addWmsUrl"><i class="fa fa-globe"></i> Add WMS end point</a>
             </li>
 
+            <!-- Place holders need to remove or replace-->
             <li class="uk-nav-header">
                 System Administrtion
             </li>
+            <!-- Place holders need to remove or replace-->
             <li class="uk-parent">
                 <a href="site/logs"><i class="fa fa-bar-chart-o"></i> View System Status</a>
             </li>
-            <li>
-                <a href=""><i class="fa fa-users"></i> Manage Users</a>
-            </li>
+            <!--<li>-->
+            <!--<a href=""><i class="fa fa-users"></i> Manage Users</a>-->
+            <!--</li>-->
         </ul>
 
     </div>
