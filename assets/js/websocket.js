@@ -4,6 +4,7 @@
 var debugObject; // assign object and debug from browser console
 var showPathFlag  = false; // Flag to hold the status of draw objects path
 var currentSpatialObjects = {};
+var selectedSpatialObject; // This is set when user search for an object from the search box
 var websocket = new WebSocket('ws://localhost:9764/outputwebsocket/DefaultWebsocketOutputAdaptor/geoDataEndPoint');
 
 websocket.onopen = function () {
@@ -356,6 +357,8 @@ function SpatialObject(geoJSON) {
         "type": "LineString",
         "coordinates": []
     };
+    this.previousAlerts = []; // TODO: fetch this array from backend DB rather than keeping as in-memory array
+    this.speedHistory = ['speed']; // TODO: fetch this array from backend DB rather than keeping as in-memory array
     this.geoJson = L.geoJson(geoJSON, {
         pointToLayer: function (feature, latlng) {
             return L.marker(latlng,{icon:normalIcon,iconAngle: this.heading});
@@ -365,13 +368,14 @@ function SpatialObject(geoJSON) {
     this.marker = this.geoJson.getLayers()[0];
     this.popupTemplate = $('#markerPopup');
     this.marker.bindPopup(this.popupTemplate.html());
-
     /* Method definitions */
     this.addTo = function (map) {
         this.geoJson.addTo(map);
     };
     this.setSpeed = function (speed) {
         this.speed = speed;
+        this.speedHistory.push(speed);
+
     };
     this.stateIcon = function(){
         switch(this.state) {
@@ -409,7 +413,12 @@ function SpatialObject(geoJSON) {
     this.update = function (geoJSON) {
         this.latitude = geoJSON.geometry.coordinates[1];
         this.longitude = geoJSON.geometry.coordinates[0];
-        this.speed = geoJSON.properties.speed;
+        this.setSpeed(geoJSON.properties.speed);
+        if(this.state != geoJSON.properties.state && this.state){
+            this.previousAlerts.push(new Alert(geoJSON.properties.state,geoJSON.properties.information));
+            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focuseOnSpatialObject("+this.id+")'>"+this.id+"</span> change state to: <span style='color: red'>"+geoJSON.properties.state+"</span> Info : "+geoJSON.properties.information);
+        }
+
         this.state = geoJSON.properties.state;
         this.heading = geoJSON.properties.heading;
         this.information = geoJSON.properties.information;
@@ -420,8 +429,13 @@ function SpatialObject(geoJSON) {
         // Leaflet(http://leafletjs.com/reference.html#latlng) and geoJson standards(http://geojson.org/geojson-spec.html#id2),
         // have to do this swapping, but the resulting geoJson in not upto geoJson standards
         this.pathGeoJson.coordinates.push([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
-        if(showPathFlag)
+        if(selectedSpatialObject == this.id){
             this.updatePath([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
+//            if(this.speedHistory.length > 20)
+//                this.speedHistory.splice(1,1);
+            chart.load({columns: [this.speedHistory]});
+            map.setView([this.latitude,this.longitude]);
+        }
         this.popupTemplate.find('#objectId').html(this.id);
         this.popupTemplate.find('#information').html(this.information);
         this.popupTemplate.find('#speed').html(this.speed);
@@ -432,4 +446,31 @@ function SpatialObject(geoJSON) {
     };
     this.update(geoJSON);
     return this;
+}
+
+function notifyAlert(message) {
+    $.UIkit.notify({
+        message: "Alert: "+message,
+        status: 'warning',
+        timeout: 3000,
+        pos: 'bottom-left'
+    });
+};
+
+function Alert(type,message,level){
+    this.type = type;
+    this.message = message;
+    if(level)
+        this.level = level;
+    else
+        this.level = 'info';
+
+    this.notify = function () {
+        $.UIkit.notify({
+            message: this.level+': '+this.type+' '+this.message,
+            status: 'info',
+            timeout: 1000,
+            pos: 'bottom-left'
+        });
+    }
 }
