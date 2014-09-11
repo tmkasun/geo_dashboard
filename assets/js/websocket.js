@@ -431,8 +431,8 @@ function SpatialObject(geoJSON) {
         this.pathGeoJson.coordinates.push([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
         if(selectedSpatialObject == this.id){
             this.updatePath([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
-//            if(this.speedHistory.length > 20)
-//                this.speedHistory.splice(1,1);
+            if(this.speedHistory.length > 20)
+                this.speedHistory.splice(1,1);
             chart.load({columns: [this.speedHistory]});
             map.setView([this.latitude,this.longitude]);
         }
