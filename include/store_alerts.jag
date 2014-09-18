@@ -1,9 +1,12 @@
 <%
+    // TODO: change the name of this jaggery file even thoe it says 'store_alerts' it is actually removing the alerts from the data store as well o.O wired
+
     var dataStore = require('../include/commons.jag').dataStore;
     var log = new Log();
 
-    function store(parseKey,parseValue,executionPlan,optional) {
-        log.info("DEBUG:*** parseValue:"+parseValue);
+    // TODO: change method params accordingly parseKey gives no meaning
+    function store(parseKey,resourceContents,executionPlan,optional) {
+        log.info("DEBUG:*** resourceContents:"+resourceContents);
         if(executionPlan == "speed"){
             var currentLimit;
             try{
@@ -15,7 +18,7 @@
                 currentLimit.mediaType = 'application/json';
                 currentLimit.description = "User define speed limit for display alerts.";
             }
-            currentLimit.content = String('{"speedLimit": '+parseValue+'}');
+            currentLimit.content = String('{"speedLimit": '+resourceContents+'}');
             dataStore.put("speed.json",currentLimit);
             log.info("DEBUG:*** Current speed limit set to:"+currentLimit.content);
         }
@@ -30,13 +33,25 @@
                 dataStore.put("geo", geo);
                 dataStore.put("alerts", alerts);
             }
-            log.info("DEBUG:****** parseValue = "+String('{"geoJson": '+parseValue+'}'));
+            log.info("DEBUG:****** resourceContents = "+String('{"geoJson": '+resourceContents+'}'));
             var resource = dataStore.newResource();
             resource.addProperty("queryName", optional.queryName);
             resource.addProperty("areaName", optional.customName);
             resource.mediaType = 'application/json';
-            resource.content = String(parseValue);
+            resource.content = String(resourceContents);
             dataStore.put(String("geo/alerts/"+optional.queryName+".json"), resource);
+        }
+    }
+
+    function remove(queryName) {
+        log.info("DEBUG: queryName = "+queryName);
+        try{
+            var path = "geo/alerts/"+queryName+".json";
+            log.info("DEBUG: path = "+path);
+            dataStore.remove(path);
+            }
+        catch(e){
+            log.info("The requested resource "+path+" was not found on this server. That’s all we know."); // Inspired by google 404 message
         }
     }
 %>
