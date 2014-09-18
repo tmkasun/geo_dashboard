@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="stylesheet" href="assets/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <!--<link rel="stylesheet" href="assets/css/background.css" type="text/css"/>-->
     <!-- Leaflet styles -->
     <link rel="stylesheet" href="assets/css/leaflet.css"/>
     <link rel="stylesheet" href="assets/css/L.Control.Locate.css"/>
@@ -148,15 +147,9 @@
 
 
 
-
-
-
-
-
-
 <div id="objectInfo" style="background: none repeat scroll 0% 0% rgba(85, 250, 206, 0.2);display: none;border-radius: 13px;z-index: 1000;height: 94%;padding: 0px" class="col-md-2 pull-right" >
     <div class="panel panel-default" style="max-height: 47%;overflow: auto;box-shadow: 0px 0px 8px 0px #635749">
-        <div class="panel-heading text-center"><h4>Speed variation<i style="cursor: pointer;" onclick="$('#objectInfo').animate({width:'toggle'},200);spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;" class="fa fa-times pull-right"></i></h4>
+        <div class="panel-heading text-center"><h4>Speed variation<i style="cursor: pointer;" onclick="$('#objectInfo').animate({width: ['toggle','swing']},200);spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;" class="fa fa-times pull-right"></i></h4>
         </div>
         <div class="panel-body">
             <div style="margin: 0;border: none" id="chart_div"></div>
