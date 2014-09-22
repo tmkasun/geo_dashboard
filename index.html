@@ -45,6 +45,8 @@
     <script src="assets/js/leaflet/Leaflet.fullscreen.min.js"></script>
     <script src="assets/js/leaflet/Marker.Rotate.js"></script>
     <script src="assets/js/leaflet/leaflet.draw.js"></script>
+    <script src="assets/js/leaflet/rlayer.js"></script>
+    <script src="assets/js/leaflet/raphael-min.js"></script>
 
     <script src="assets/js/typeahead.bundle.min.js"></script>
 
@@ -56,10 +58,11 @@
     <!-- UIkit libraries -->
     <script src="assets/js/uikit/uikit.min.js"></script>
     <script src="assets/js/uikit/addons/notify.min.js"></script>
-    <!-- Self javascript libraries -->
+    <!-- Self javascript libraries (Order of the import is very important, changing the order might shadow some variables, append new script to bottom ) -->
     <script src="assets/js/websocket.js"></script>
     <script src="assets/js/geo_remote.js"></script>
     <script src="assets/js/geo_fencing.js"></script>
+    <script src="assets/js/show_alert_in_map.js"></script>
 
     <style>
         /*
@@ -93,7 +96,7 @@
         }
 
         .leaflet-popup-content{
-            width:auto !important;
+            width:200px !important;
             margin: 6px;
         }
 
@@ -127,11 +130,12 @@
                                                                               style="color: #FF9900"></i></a>
             </li>
         </ul>
-        <form id="mapSearch" class="navbar-form navbar-right" role="search">
+        <form id="mapSearch" class="navbar-form navbar-right" role="search" onsubmit="focusOnSpatialObject($(this).find('#searchbox').val());return false;">
             <div class="form-group has-feedback navbar-right">
-                <input id="searchbox" type="text" placeholder="Search" class="form-control typeahead">
+                <input autofocus="true" id="searchbox" type="text" placeholder="Search" class="form-control typeahead">
                 <span id="searchicon" class="fa fa-search form-control-feedback"></span>
             </div>
+            <input style="visibility: hidden; position: fixed;" type="submit" />
         </form>
         <ul class="nav navbar-nav">
             <li class="hidden-xs"><a href="#left_side_pannel" data-uk-offcanvas>
@@ -149,17 +153,20 @@
 
 <div id="objectInfo" style="background: none repeat scroll 0% 0% rgba(85, 250, 206, 0.2);display: none;border-radius: 13px;z-index: 1000;height: 94%;padding: 0px" class="col-md-2 pull-right" >
     <div class="panel panel-default" style="max-height: 47%;overflow: auto;box-shadow: 0px 0px 8px 0px #635749">
-        <div class="panel-heading text-center"><h4>Speed variation<i style="cursor: pointer;" onclick="$('#objectInfo').animate({width: ['toggle','swing']},200);spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;" class="fa fa-times pull-right"></i></h4>
+        <div class="panel-heading text-center"><h4>Speed variation<i style="cursor: pointer;" onclick="$('#objectInfo').animate({width: ['toggle','swing']},200);spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;toggled = false;" class="fa fa-times pull-right"></i></h4>
         </div>
         <div class="panel-body">
-            <div style="margin: 0;border: none" id="chart_div"></div>
+            <!-- TODO:  setting `margin-left` to increase the area of the chart is a bad hack there should be a better way to do this check :P -->
+            <div style="margin: 0;border: none;margin-left: -25px" id="chart_div"></div>
         </div>
     </div>
 
     <div class="panel panel-default" style="max-height: 47%;overflow: auto;box-shadow: 0px 0px 8px 0px #635749">
         <div class="panel-heading text-center"><div class="panel-title"><h4>Alerts</h4></div></div>
-        <div class="panel-body">
+        <div class="panel-body" style="padding: 0px">
+            <div id="showAlertsArea" class="list-group" style="margin-top: 15px">
 
+            </div>
 
         </div>
     </div><!--/panel-->
@@ -180,7 +187,7 @@
 
 
 
-<div id="left_side_pannel" class="uk-offcanvas">
+<div id="left_side_pannel" class="uk-offcanvas" style="z-index: -1;">
     <div class="uk-offcanvas-bar" style="box-shadow: 3px 14px 13px -2px #211404;">
         <ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav>
             <li class="uk-parent" style="box-shadow: 0px 2px 12px 1px #2D1600;">
@@ -710,7 +717,8 @@
         <div class="arrow"></div>
         <h3 class="popover-title">ID <span id="objectId"></span></h3>
         <div class="popover-content">
-            <h6>Information<span id="information" class="label label-primary pull-right"></span></h6>
+            <h6>Information</h6>
+            <p id="information" class="bg-primary" style="margin: 0px;padding: 0px;"></p>
             <h6>Speed<span class="label label-primary pull-right"><span id="speed" ></span> km/h</span></h6>
             <h6>Heading<span id="heading" class="label label-primary pull-right"></span></h6>
             <button type="button" class="btn btn-info btn-xs">History</button>

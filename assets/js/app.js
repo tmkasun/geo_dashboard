@@ -1,3 +1,21 @@
+/*
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 /*Application configurations*/
 
 $(".modal").draggable({
@@ -10,50 +28,12 @@ $('body').on('hidden.bs.modal', '.modal', function () {
 });
 
 /*Map layer configurations*/
-var map, featureList, boroughSearch = [], theaterSearch = [], museumSearch = [];
+var map, boroughSearch = [], theaterSearch = [];
 
 $("#loading").hide();
 
-$(document).on("click", ".feature-name", function (e) {
-    sidebarClick(parseInt($(this).attr('id')));
-});
-
-function sidebarClick(id) {
-    map.addLayer(theaterLayer).addLayer(museumLayer);
-    var layer = markerClusters.getLayer(id);
-    markerClusters.zoomToShowLayer(layer, function () {
-        map.setView([layer.getLatLng().lat, layer.getLatLng().lng], 17);
-        layer.fire("click");
-    });
-    /* Hide sidebar and go to the map on small screens */
-    if (document.body.clientWidth <= 767) {
-        $("#sidebar").hide();
-        map.invalidateSize();
-    }
-}
-
-
-// TODO: use this method to load tileservers from backend database
 getTileServers();
-/* Basemap Layers */
-var mapquestOSM = L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    subdomains: ["otile1", "otile2", "otile3", "otile4"],
-    attribution: 'Tiles courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">. Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA.'
-});
-var mapquestOAM = L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg", {
-    maxZoom: 18,
-    subdomains: ["oatile1", "oatile2", "oatile3", "oatile4"],
-    attribution: 'Tiles courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a>. Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency'
-});
-var mapquestHYB = L.layerGroup([L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg", {
-    maxZoom: 18,
-    subdomains: ["oatile1", "oatile2", "oatile3", "oatile4"]
-}), L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/hyb/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    subdomains: ["oatile1", "oatile2", "oatile3", "oatile4"],
-    attribution: 'Labels courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">. Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA. Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency'
-})]);
+
 /* Overlay Layers */
 var highlight = L.geoJson(null);
 
@@ -84,58 +64,10 @@ var markerClusters = new L.MarkerClusterGroup({
     disableClusteringAtZoom: 16
 });
 
-/* Empty layer placeholder to add to layer control for listening when to add/remove theaters to markerClusters layer */
-var theaterLayer = L.geoJson(null);
-var theaters = L.geoJson(null, {
-    pointToLayer: function (feature, latlng) {
-        return L.marker(latlng, {
-            icon: L.icon({
-                iconUrl: "assets/img/theater.png",
-                iconSize: [24, 28],
-                iconAnchor: [12, 28],
-                popupAnchor: [0, -25]
-            }),
-            title: feature.properties.NAME,
-            riseOnHover: true
-        });
-    },
-    onEachFeature: function (feature, layer) {
-        if (feature.properties) {
-            var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>Name</th><td>" + feature.properties.NAME + "</td></tr>" + "<tr><th>Phone</th><td>" + feature.properties.TEL + "</td></tr>" + "<tr><th>Address</th><td>" + feature.properties.ADDRESS1 + "</td></tr>" + "<tr><th>Website</th><td><a class='url-break' href='" + feature.properties.URL + "' target='_blank'>" + feature.properties.URL + "</a></td></tr>" + "<table>";
-            layer.on({
-                click: function (e) {
-                    $("#feature-title").html(feature.properties.NAME);
-                    $("#feature-info").html(content);
-                    $("#featureModal").modal("show");
-                    highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
-                        stroke: false,
-                        fillColor: "#00FFFF",
-                        fillOpacity: 0.7,
-                        radius: 10
-                    }));
-                }
-            });
-            $("#feature-list tbody").append('<tr style="cursor: pointer;"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/theater.png"></td><td class="feature-name" id="' + L.stamp(layer) + '">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-            theaterSearch.push({
-                name: layer.feature.properties.NAME,
-                address: layer.feature.properties.ADDRESS1,
-                source: "Theaters",
-                id: L.stamp(layer),
-                lat: layer.feature.geometry.coordinates[1],
-                lng: layer.feature.geometry.coordinates[0]
-            });
-        }
-    }
-});
-//*temp_for_not_to_make_ajax*$.getJSON("data/DOITT_THEATER_01_13SEPT2010.geojson", function (data) {
-//  theaters.addData(data);
-//  map.addLayer(theaterLayer);
-//});
-
 var browserLatitude;
 var browserLongitude;
 function success(position) {
-    browserLatitude  = position.coords.latitude;
+    browserLatitude = position.coords.latitude;
     browserLongitude = position.coords.longitude;
 
     $.UIkit.notify({
@@ -145,7 +77,7 @@ function success(position) {
         pos: 'top-center'
     });
 
-    map.setView([browserLatitude,browserLongitude]);
+    map.setView([browserLatitude, browserLongitude]);
     map.setZoom(13);
 };
 
@@ -170,7 +102,13 @@ function initializeMap(tileLayer) {
         center: [6.934846, 79.851980],
         layers: [defaultOSM, boroughs, markerClusters, highlight],
         zoomControl: false,
-        attributionControl: false
+        attributionControl: false,
+        maxZoom: 20,
+        maxNativeZoom: 18
+    });
+
+    map.on('click', function(e) {
+        $.UIkit.offcanvas.hide();//[force = false] no animation
     });
 }
 
@@ -225,33 +163,21 @@ var zoomControl = L.control.zoom({
 //locateControl.locate();
 
 /* Larger screens get expanded layer control and visible sidebar */
-if (document.body.clientWidth <= 767) {
+// -for reference change to permanent collapsed true -
+/*if (document.body.clientWidth <= 767) {
     var isCollapsed = true;
 } else {
     var isCollapsed = false;
-}
+}*/
 
-
-//var precipitation = L.tileLayer.wms("http://sedac.ciesin.columbia.edu/geoserver/wms", {
-//    layers: 'wildareas-v2:wildareas-v2-human-footprint-geographic',
-//    format: 'image/png',
-//    transparent: true,
-//    opacity: 0.4
-//});
 
 var groupedOverlays = {
     "Web Map Service layers": {
     }
-// For reference
-//    ,
-//    "Reference": {
-//        "Boroughs": boroughs,
-//        "Subway Lines": subwayLines
-//    }
 };
 getWms();
 var layerControl = L.control.groupedLayers(baseLayers, groupedOverlays, {
-    collapsed: isCollapsed
+    collapsed: true
 }).addTo(map);
 
 /* Highlight search box text on click */
@@ -261,12 +187,12 @@ $("#searchbox").click(function () {
 
 /* Typeahead search functionality */
 
-var substringMatcher = function() {
+var substringMatcher = function () {
     return function findMatches(q, cb) {
         var matches, substrRegex;
         matches = [];
         substrRegex = new RegExp(q, 'i');
-        $.each(currentSpatialObjects, function(i, str) {
+        $.each(currentSpatialObjects, function (i, str) {
             if (substrRegex.test(i)) {
                 matches.push({ value: i });
             }
@@ -313,77 +239,43 @@ $('#searchbox').typeahead({
         name: 'states',
         displayKey: 'value',
         source: substringMatcher()
-    }).on('typeahead:selected', function($e, datum) {
+    }).on('typeahead:selected', function ($e, datum) {
         objectId = datum['value'];
-        focuseOnSpatialObject(objectId)
+        focusOnSpatialObject(objectId)
     });
 
 
-function focuseOnSpatialObject(objectId){
+// TODO: when click on a notification alert ? "Uncaught ReferenceError: KM is not defined "
+var toggled = false;
+function focusOnSpatialObject(objectId) {
+    clearFocuse(); // Clear current focus if any
     selectedSpatialObject = objectId;
     spatialObject = currentSpatialObjects[selectedSpatialObject];
-    map.setView(spatialObject.marker.getLatLng(),17,{animate: true}); // TODO: check the map._layersMaxZoom and set the zoom level accordingly
+    map.setView(spatialObject.marker.getLatLng(), 17, {animate: true}); // TODO: check the map._layersMaxZoom and set the zoom level accordingly
     setTimeout(function () {
         spatialObject.marker.openPopup();
-    },100);
+    }, 50);
     setTimeout(function () {
-        $('#objectInfo').animate({width:'toggle'},200);
-        createChart();
-    },500);
+        if (!toggled){
+            $('#objectInfo').animate({width: 'toggle'}, 100);
+            toggled = true;
+        }
+        setTimeout(function () {
+            createChart();
+            getAlertsHistory(objectId);
+        },150);
+    }, 250);
     spatialObject.drawPath();
+}
 
+// Unfocuse on current searched spatial object
+function clearFocuse(){
+    if(selectedSpatialObject){
+        spatialObject = currentSpatialObjects[selectedSpatialObject];
+        spatialObject.removePath();
+        spatialObject.marker.closePopup();
+        selectedSpatialObject = null;
+    }
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//var spatialObjects = new Bloodhound({
-//    datumTokenizer: function (d) {
-//        return Bloodhound.tokenizers.whitespace(d.value);
-//    },
-//    queryTokenizer: Bloodhound.tokenizers.whitespace,
-//    local: $.map(currentSpatialObjects, function (currentSpatialObject) {
-//        return { value: currentSpatialObject.id };
-//    })
-//});
-//// kicks off the loading/processing of `local` and `prefetch`
-//spatialObjects.initialize();
-//
-//$(function () {
-//    $('#searchbox').typeahead({
-//        hint : true,
-//        highlight : true,
-//        minLength : 1
-//    }, {
-//        name : 'spatialObjects',
-//        displayKey : 'value',
-//        source : spatialObjects.ttAdapter()
-//    }).on('typeahead:autocompleted', function($e, datum) {
-//        selected_value = datum["value"];
-//    }).on('typeahead:selected', function($e, datum) {
-//        selected_value = datum["value"];
-//        for (var spatialObject in currentSpatialObjects) {
-//            if (currentSpatialObjects[spatialObject].id == selected_value) {
-//                map.setView(currentSpatialObjects[spatialObject].marker.getLatLng(),16);
-//            }
-//        }
-//    });
-//
-//});

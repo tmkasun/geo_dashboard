@@ -33,3 +33,4 @@ A simple, responsive template for building web mapping applications with [Bootst
 
 * Mobile Popup
 ![Mobile Popup](http://geo.knnect.com/geo_github_screenshots/mobile.png)
+

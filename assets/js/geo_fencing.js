@@ -1,6 +1,21 @@
-/**
- * Created by kbsoft on 8/29/14.
+/*
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 var drawControl;
 function openWithinTools() {
     closeAll();
@@ -13,8 +28,7 @@ function openWithinTools() {
 
     L.Control.RemoveAll = L.Control.extend(
         {
-            options:
-            {
+            options: {
                 position: 'topleft'
             },
             onAdd: function (map) {
@@ -23,15 +37,26 @@ function openWithinTools() {
                     .addListener(controlDiv, 'click', L.DomEvent.stopPropagation)
                     .addListener(controlDiv, 'click', L.DomEvent.preventDefault)
                     .addListener(controlDiv, 'click', function () {
+                        controlDiv.remove();
+                        drawControl.removeFrom(map);
                         drawnItems.clearLayers();
                     });
 
-                var controlUI = L.DomUtil.create('a', 'leaflet-draw-edit-remove', controlDiv);
-                controlUI.title = 'Remove All Polygons';
+                var controlUI = L.DomUtil.create('a', 'fa fa-times fa-lg drawControlCloseButton', controlDiv);
+                $(controlUI).css("background-image", "none"); // Remove default control icon
+                // TODO: bad usage of .hover() use CSS instead
+                $(controlUI).mouseenter(function () {
+                    $(this).css("color", "red");
+                }).mouseleave(function () {
+                    $(this).css("color", "black")
+                });
+
+                controlUI.title = 'Close drawer tools';
                 controlUI.href = '#';
                 return controlDiv;
             }
         });
+    ;
     var removeAllControl = new L.Control.RemoveAll();
     map.addControl(removeAllControl);
 
@@ -47,7 +72,7 @@ function openWithinTools() {
     });
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     drawControl = new L.Control.Draw({
-        draw:   {
+        draw: {
 //            polyline: {
 //                shapeOptions: {
 //                    color: '#f357a1',
@@ -98,21 +123,21 @@ function openWithinTools() {
 
 function createPopup(layer) {
     popupTemplate = $('#setWithinAlert');
-    popupTemplate.find('#exportGeoJson').attr('leaflet_id',layer._leaflet_id);
-    popupTemplate.find('#editGeoJson').attr('leaflet_id',layer._leaflet_id);
-    popupTemplate.find('#addWithinAlert').attr('leaflet_id',layer._leaflet_id);
-    layer.bindPopup(popupTemplate.html(),{closeOnClick: false, closeButton: false}).openPopup();
+    popupTemplate.find('#exportGeoJson').attr('leaflet_id', layer._leaflet_id);
+    popupTemplate.find('#editGeoJson').attr('leaflet_id', layer._leaflet_id);
+    popupTemplate.find('#addWithinAlert').attr('leaflet_id', layer._leaflet_id);
+    layer.bindPopup(popupTemplate.html(), {closeOnClick: false, closeButton: false}).openPopup();
     // transparent the layer .leaflet-popup-content-wrapper
-    $(layer._popup._container.childNodes[0]).css("background","rgba(255,255,255,0.8)");
+    $(layer._popup._container.childNodes[0]).css("background", "rgba(255,255,255,0.8)");
 }
 
-function closeWithinTools(leafletId){
+function closeWithinTools(leafletId) {
     map._layers[leafletId].closePopup().unbindPopup();
     map.removeControl(drawControl);
 }
 
 /* Export selected area on the map as a json encoded geoJson standard file, no back-end calls simple HTML5 trick ;) */
-function exportToGeoJSON(link,content) {
+function exportToGeoJSON(link, content) {
     // HTML5 features has been used here
     geoJsonData = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
     // TODO: replace closest()  by using persistence id for templates, template id prefixed by unique id(i.e leaflet_id)
@@ -120,16 +145,16 @@ function exportToGeoJSON(link,content) {
     $(link).attr({
         'href': geoJsonData,
         'target': '_blank',
-        'download': fileName+'.json' // Use the fence name given by the user as the file name of the JSON file
+        'download': fileName + '.json' // Use the fence name given by the user as the file name of the JSON file
     });
 }
 
-$(function() {
-    $("#importGeoJsonFile").change(function (){
+$(function () {
+    $("#importGeoJsonFile").change(function () {
         var importedFile = this.files[0];
         var reader = new FileReader();
         reader.readAsText(importedFile);
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             $("#enterGeoJson").text(e.target.result.toString());
         };
     });
@@ -156,8 +181,8 @@ function importGeoJson() {
 //    }
 //    // else use the edited text on the textarea
 //    else{
-        updatedGeoJson = $('#enterGeoJson').val();
-        updateDrawing(updatedGeoJson);
+    updatedGeoJson = $('#enterGeoJson').val();
+    updateDrawing(updatedGeoJson);
 //    }
 }
 
@@ -166,7 +191,7 @@ function updateDrawing(updatedGeoJson) {
     // Pop the last LatLng pair because according to the geoJSON standard it use complete round LatLng set to store polygon coordinates
     updatedGeoJson.geometry.coordinates[0].pop();
     leafletLatLngs = [];
-    $.each(updatedGeoJson.geometry.coordinates[0], function(idx, pItem){
+    $.each(updatedGeoJson.geometry.coordinates[0], function (idx, pItem) {
         leafletLatLngs.push({lat: pItem[1], lng: pItem[0]});
     });
 
@@ -176,16 +201,16 @@ function updateDrawing(updatedGeoJson) {
     createPopup(polygon);
 
     /*
-    // For reffrence TODO: remove if not use
-    currentDrawingLayer.setLatLngs(leafletLatLngs);
-    layerId = $(button).attr('leaflet_id');
-    console.log(layerId);
-    currentDrawingLayer = map._layers[layerId];
+     // For reffrence TODO: remove if not use
+     currentDrawingLayer.setLatLngs(leafletLatLngs);
+     layerId = $(button).attr('leaflet_id');
+     console.log(layerId);
+     currentDrawingLayer = map._layers[layerId];
 
      // At least a line or polygon must have 2 points so try the following with '0', '1',not more that that could give unexpected errors
-    currentDrawingLayer._popup.setLatLng(leafletLatLngs[1]);
-    // TODO: Use rails a-like id generating method to identify each copy of the the templates uniquely i.e marker_popup_{leaflet_layer_id}
-    //$(button).closest('form').find('#areaName').val(fileName);
+     currentDrawingLayer._popup.setLatLng(leafletLatLngs[1]);
+     // TODO: Use rails a-like id generating method to identify each copy of the the templates uniquely i.e marker_popup_{leaflet_layer_id}
+     //$(button).closest('form').find('#areaName').val(fileName);
      */
     closeAll();
 
@@ -197,9 +222,9 @@ function viewFence(geoFenceElement) {
     var queryName = $(geoFenceElement).attr('data-queryName');
     var areaName = $(geoFenceElement).attr('data-areaName');
 
-    geoJson.coordinates[0].pop();
+    geoJson.coordinates[0].pop(); // popout the last coordinate set(lat,lng pair) due to circular chain
     leafletLatLngs = [];
-    $.each(geoJson.coordinates[0], function(idx, pItem){
+    $.each(geoJson.coordinates[0], function (idx, pItem) {
         leafletLatLngs.push({lat: pItem[1], lng: pItem[0]});
     });
 
@@ -208,14 +233,14 @@ function viewFence(geoFenceElement) {
 
     $('#templateLoader').load("assets/html_templates/view_fence_popup.html #viewWithinAlert", function () {
         popupTemplate = $('#templateLoader').find('#viewWithinAlert');
-        popupTemplate.find('#exportGeoJson').attr('leaflet_id',polygon._leaflet_id);
-        popupTemplate.find('#hideViewFence').attr('leaflet_id',polygon._leaflet_id);
+        popupTemplate.find('#exportGeoJson').attr('leaflet_id', polygon._leaflet_id);
+        popupTemplate.find('#hideViewFence').attr('leaflet_id', polygon._leaflet_id);
         popupTemplate.find('#viewAreaName').html(areaName);
         popupTemplate.find('#viewQueryName').html(queryName);
 
-        polygon.bindPopup(popupTemplate.html(),{closeButton: false}).openPopup();
+        polygon.bindPopup(popupTemplate.html(), {closeButton: false}).openPopup();
         // transparent the layer .leaflet-popup-content-wrapper
-        $(polygon._popup._container.childNodes[0]).css("background","rgba(255,255,255,0.8)");
+        $(polygon._popup._container.childNodes[0]).css("background", "rgba(255,255,255,0.8)");
         closeAll();
     });
 }

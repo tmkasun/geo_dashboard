@@ -3,6 +3,18 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+    <style>
+        .fa-trash-o:hover{color:red;}
+    </style>
+
+    <script>
+    $(".removeGeoFence").tooltip();
+
+    $('.viewGeoFenceRow td:not(:last-child)').click(function () {
+            viewFence(this.parentElement);
+        });
+
+    </script>
 </head>
 <body>
 <%
@@ -25,6 +37,7 @@ var get = require('../get_alerts.jag').get;
                   <th>Fence Name</th>
                   <th>Query Name</th>
                   <th>Created On</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -34,10 +47,11 @@ var get = require('../get_alerts.jag').get;
                 if(alerts){
                     for each(var alert in alerts){
                         %>
-              <tr style="cursor: pointer" data-areaName='<%= alert.areaName %>' data-queryName='<%= alert.queryName %>' data-geoJson='<%= alert.geoJson %>' onClick = "viewFence(this)">
+              <tr class="viewGeoFenceRow" style="cursor: pointer" data-areaName='<%= alert.areaName %>' data-queryName='<%= alert.queryName %>' data-geoJson='<%= alert.geoJson %>'>
                                 <td><%= alert.areaName %></td>
                                 <td><%= alert.queryName %></td>
                                 <td><%= alert.createdTime %></td>
+                                <td onClick="removeGeoFence(this.parentElement)" class="removeGeoFence" data-toggle="tooltip" title="Remove fence" ><i class="fa fa-trash-o"></i></td>
               </tr>
                         <%
                     }

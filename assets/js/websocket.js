@@ -1,6 +1,21 @@
-/**
- * Created by kbsoft on 8/13/14.
+/*
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 var debugObject; // assign object and debug from browser console
 var showPathFlag  = false; // Flag to hold the status of draw objects path
 var currentSpatialObjects = {};
@@ -51,11 +66,6 @@ websocket.onmessage = function processMessage(message) {
         proxCloseId = proxList[1];
     }
 
-//    messagesTextArea.value += "ID : " + id + " Longtitute : " + lon
-//        + " Latitude : " + lat + "\n";
-//    var textarea = document.getElementById('messagesTextArea');
-//    textarea.scrollTop = textarea.scrollHeight;
-
     mapUpdater(id, lat, lon, speed, speedFlag, stationFlag,
         proximityFlag);
 
@@ -64,32 +74,6 @@ var idList = [];
 var markerLayer = new L.layerGroup();
 var polylineLayer = new L.layerGroup();
 var bufferLayer = new L.layerGroup();
-
-//Marker Icon List Class
-//var markers = L.Icon.extend({
-//    options : {
-//        iconSize : [ 41, 41 ],
-//        shadowSize : [ 41, 41 ],
-//        iconAnchor : [ 20, 40 ],
-//        shadowAnchor : [ 10, 40 ],
-//        popupAnchor : [ 0, -30 ]
-//    }
-//});
-//
-//var defIcon = L.Icon.Default.extend({
-//    options : {
-//        iconUrl : 'assets/img/markers/marker-icon.png'
-//    }
-//});
-//var DefIcon = new defIcon();
-//
-//var pinkIcon = new markers({
-//    iconUrl : 'assets/img/markers/pinkMarker.png'
-//}), redIcon = new markers({
-//    iconUrl : 'assets/img/markers/redMarker.png'
-//}), greenIcon = new markers({
-//    iconUrl : 'assets/img/markers/greenMarker.png'
-//});
 
 function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag, proximityFlag) {
     var markerCheck = false;
@@ -357,7 +341,7 @@ function SpatialObject(geoJSON) {
         "type": "LineString",
         "coordinates": []
     };
-    this.previousAlerts = []; // TODO: fetch this array from backend DB rather than keeping as in-memory array
+    this.alertsHistory = []; // TODO: (done) fetch this array from backend DB rather than keeping as in-memory array
     this.speedHistory = ['speed']; // TODO: fetch this array from backend DB rather than keeping as in-memory array
     this.geoJson = L.geoJson(geoJSON, {
         pointToLayer: function (feature, latlng) {
@@ -375,9 +359,12 @@ function SpatialObject(geoJSON) {
     this.setSpeed = function (speed) {
         this.speed = speed;
         this.speedHistory.push(speed);
-
+        if(this.speedHistory.length > 20){
+            this.speedHistory.splice(1,1);
+        }
     };
     this.stateIcon = function(){
+        // Performance of if-else, switch or map based conditioning http://stackoverflow.com/questions/8624939/performance-of-if-else-switch-or-map-based-conditioning
         switch(this.state) {
             case "NORMAL":
                 return normalIcon;
@@ -391,7 +378,6 @@ function SpatialObject(geoJSON) {
             default:
                 return defaultIcon;
         }
-
     };
     this.updatePath = function (LatLng) {
         if(!this.path)
@@ -400,8 +386,10 @@ function SpatialObject(geoJSON) {
     };
 
     this.drawPath = function () {
-        if(this.path)
-            throw "geoDashboard error: path already exist,remove current path before drawing a new path, if need to update LatLngs use setLatLngs method instead"; // Path already exist
+        if(this.path){
+            this.removePath();
+            //throw "geoDashboard error: path already exist,remove current path before drawing a new path, if need to update LatLngs use setLatLngs method instead"; // Path already exist
+        }
         this.path = new L.polyline(this.pathGeoJson.coordinates,{color: 'blue',weight: 5}); // Create path object when and only drawing the path (save memory)
         this.path.addTo(map);
     };
@@ -414,9 +402,14 @@ function SpatialObject(geoJSON) {
         this.latitude = geoJSON.geometry.coordinates[1];
         this.longitude = geoJSON.geometry.coordinates[0];
         this.setSpeed(geoJSON.properties.speed);
-        if(this.state != geoJSON.properties.state && this.state){
-            this.previousAlerts.push(new Alert(geoJSON.properties.state,geoJSON.properties.information));
-            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focuseOnSpatialObject("+this.id+")'>"+this.id+"</span> change state to: <span style='color: red'>"+geoJSON.properties.state+"</span> Info : "+geoJSON.properties.information);
+        // -- for reference previous method for notify the state change , now this is done in CEP side --
+//        if(this.state != geoJSON.properties.state && this.state){
+//            this.alertsHistory.push(new Alert(geoJSON.properties.state,geoJSON.properties.information));
+//            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject("+this.id+")'>"+this.id+"</span> change state to: <span style='color: red'>"+geoJSON.properties.state+"</span> Info : "+geoJSON.properties.information);
+//        }
+
+        if(geoJSON.properties.notify){
+            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject("+this.id+")'>"+this.id+"</span> change state to: <span style='color: red'>"+geoJSON.properties.state+"</span> Info : "+geoJSON.properties.information);
         }
 
         this.state = geoJSON.properties.state;
@@ -431,8 +424,6 @@ function SpatialObject(geoJSON) {
         this.pathGeoJson.coordinates.push([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
         if(selectedSpatialObject == this.id){
             this.updatePath([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
-            if(this.speedHistory.length > 20)
-                this.speedHistory.splice(1,1);
             chart.load({columns: [this.speedHistory]});
             map.setView([this.latitude,this.longitude]);
         }

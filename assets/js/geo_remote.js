@@ -1,7 +1,22 @@
-/**
- * Created by kbsoft on 8/15/14.
+/*
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-/* Make ajax call and store new tile URL*/
+
+/* All the remote calls to backend server*/
 
 /* close all opened modals and side pane */
 function addTileUrl() {
@@ -145,53 +160,45 @@ function getWms() {
     });
 }
 
-
-function closeAll() {
-    $('.modal').modal('hide');
-    setTimeout(function () {
-        $.UIkit.offcanvas.hide()
-    }, 100);
-}
-
-
 function setSpeedAlert() {
     var speedAlertValue = $("#speedAlertValue").val();
     data = {
-        'parseKey': 'speedAlertValue',
-        'parseValue': speedAlertValue,
+        'parseData': JSON.stringify({'speedAlertValue': speedAlertValue}), // parseKey : parseValue pair , this key pair is replace with the key in the template file
         'executionPlan': 'speed',
-        'customName': null
+        'customName': null,
+        'cepAction': 'edit' // TODO: what if setting speed alert for the first time ?? that should be a deployment ? try 'edit' if fails 'deploy' , need to handle at the jaggery back end
     };
-    $.post('controllers/set_alerts.jag',data, function (response) {
+    $.post('controllers/set_alerts.jag', data, function (response) {
         $.UIkit.notify({
-            message: '<span style="color: dodgerblue">' + response.status + '</span><br>'+response.message,
+            message: '<span style="color: dodgerblue">' + response.status + '</span><br>' + response.message,
             status: (response.status == 'success' ? 'success' : 'danger'),
             timeout: 3000,
             pos: 'top-center'
         });
         closeAll();
-    },'json');
+    }, 'json');
 }
 
 
 function setWithinAlert(leafletId) {
     /*
-    * TODO: replace double quote to single quote because of a conflict when deploying execution plan in CEP
-    * this is against JSON standards so has been re-replaced when getting the data from governance registry
-    * (look in get_alerts for .replace() method)
+     * TODO: replace double quote to single quote because of a conflict when deploying execution plan in CEP
+     * this is against JSON standards so has been re-replaced when getting the data from governance registry
+     * (look in get_alerts for .replace() method)
      * */
     var selectedAreaGeoJson = JSON.stringify(map._layers[leafletId].toGeoJSON().geometry).replace(/"/g, "'");
-
+    var queryName = $("#queryName").val();
+    var areaName = $("#areaName").val();
     data = {
-        'parseKey': 'geoFenceGeoJSON',
-        'parseValue': selectedAreaGeoJson,
+        'parseData': JSON.stringify({'geoFenceGeoJSON': selectedAreaGeoJson, 'executionPlanName': createExecutionPlanName(queryName), 'areaName': areaName}),
         'executionPlan': 'within',
-        'customName': $("#areaName").val(), // TODO: fix , When template copies there can be two queryName and areaName id elements in the DOM
-        'queryName': $("#queryName").val()
+        'customName': areaName, // TODO: fix , When template copies there can be two queryName and areaName id elements in the DOM
+        'queryName': queryName,
+        'cepAction': 'deploy'
     };
-    $.post('controllers/set_alerts.jag',data, function (response) {
+    $.post('controllers/set_alerts.jag', data, function (response) {
         $.UIkit.notify({
-            message: '<span style="color: dodgerblue">' + response.status + '</span><br>'+response.message,
+            message: '<span style="color: dodgerblue">' + response.status + '</span><br>' + response.message,
             status: (response.status == 'success' ? 'success' : 'danger'),
             timeout: 3000,
             pos: 'top-center'
@@ -199,5 +206,77 @@ function setWithinAlert(leafletId) {
         map.removeLayer(map._layers[leafletId]);
         closeAll();
         closeWithinTools(leafletId);
-    },'json');
+    }, 'json');
 }
+
+function removeGeoFence(geoFenceElement) {
+    var queryName = $(geoFenceElement).attr('data-queryName');
+    var areaName = $(geoFenceElement).attr('data-areaName');
+
+    data = {
+        'executionPlanName': createExecutionPlanName(queryName),
+        'queryName': queryName,
+        'cepAction': 'undeploy'
+
+    };
+    $.post('controllers/remove_alerts.jag', data, function (response) {
+        $.UIkit.notify({
+            message: '<span style="color: dodgerblue">' + response.status + '</span><br>' + response.message,
+            status: (response.status == 'success' ? 'success' : 'danger'),
+            timeout: 3000,
+            pos: 'top-center'
+        });
+        closeAll();
+    }, 'json');
+}
+
+
+function getAlertsHistory(objectId) {
+    $.getJSON("controllers/get_alerts_history.jag?objectId=" + objectId, function (data) {
+        var alertsContainer = $('#showAlertsArea').empty();
+        $.each(data, function (key, val) {
+            var alertDOMElement = document.createElement('a'); // Reason for using document.createElement (performance issue) http://stackoverflow.com/questions/268490/jquery-document-createelement-equivalent
+            // TODO: define central state definition if needed to cahnge then it would be only one place change, same state switch has been used in websocket , spatialObject prototype
+            switch (val.state) {
+                case "NORMAL":
+//                    $(alertDOMElement).addClass("list-group-item list-group-item-info");
+                    return;
+                case "WARNING":
+                    $(alertDOMElement).addClass("list-group-item list-group-item-warning");
+                    break;
+                case "ALERTED":
+                    $(alertDOMElement).addClass("list-group-item list-group-item-danger");
+                    break;
+                case "OFFLINE":
+                    $(alertDOMElement).addClass("list-group-item list-group-item-success");
+                    break;
+            }
+            $(alertDOMElement).html(val.information);
+            $(alertDOMElement).css({marginTop : "5px"});
+            $(alertDOMElement).attr('onClick', 'showAlertInMap(this)');
+
+            // Set HTML5 data attributes for later use
+            $(alertDOMElement).attr('data-id', val.id);
+            $(alertDOMElement).attr('data-latitude', val.latitude);
+            $(alertDOMElement).attr('data-longitude', val.longitude);
+            $(alertDOMElement).attr('data-state', val.state);
+            $(alertDOMElement).attr('data-information', val.information);
+
+            alertsContainer.append(alertDOMElement);
+        });
+    });
+}
+
+// TODO:this is not a remote call , move this to application.js
+function createExecutionPlanName(queryName) {
+    return 'geo_within' + (queryName ? '_' + queryName : '') + '_alert'; // TODO: value of the `queryName` can't be empty, because it will cause name conflicts in CEP, have to do validation(check not empty String)
+}
+
+// TODO:this is not a remote call , move this to application.js
+function closeAll() {
+    $('.modal').modal('hide');
+    setTimeout(function () {
+        $.UIkit.offcanvas.hide()
+    }, 100);
+}
+

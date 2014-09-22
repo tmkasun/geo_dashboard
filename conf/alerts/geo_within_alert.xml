@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<executionPlan name="geo_within_alert" statistics="enable"
+<executionPlan name="$executionPlanName" statistics="enable"
   trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
   <description/>
   <siddhiConfiguration>
@@ -7,15 +7,15 @@
     <property name="siddhi.enable.distributed.processing">false</property>
   </siddhiConfiguration>
   <importedStreams>
-    <stream as="dataIn" name="ObjectLocationStream" version="1.0.0"/>
+    <stream as="dataIn" name="standardSpatialEvents" version="1.0.0"/>
   </importedStreams>
-  <queryExpressions><![CDATA[from dataIn[geo:iswithin(longitude,latitude,"$geoFenceGeoJSON")==true]
-select id , latitude, longitude, speed, heading, "ALERTED" as state, "This vehicle is in a restricted area!!!" as information
+  <queryExpressions><![CDATA[from dataIn[geo:iswithin(longitude,latitude,"$geoFenceGeoJSON")==true]#transform.geo:subscribeExecutionPlan()
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "ALERTED" as state, "This vehicle is in $areaName restricted area!!!" as information
 insert into dataOut;
 from dataIn[geo:iswithin(longitude,latitude,"$geoFenceGeoJSON")!=true]
-select id , latitude, longitude, speed, heading, state, information
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "NORMAL" as state, "" as information
 insert into dataOut;]]></queryExpressions>
   <exportedStreams>
-    <stream name="spatial_alert_fence_output" valueOf="dataOut" version="1.0.0"/>
+    <stream name="processedSpatialEvents" valueOf="dataOut" version="1.0.0"/>
   </exportedStreams>
 </executionPlan>
