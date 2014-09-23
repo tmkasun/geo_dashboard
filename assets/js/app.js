@@ -249,23 +249,21 @@ $('#searchbox').typeahead({
 var toggled = false;
 function focusOnSpatialObject(objectId) {
     clearFocuse(); // Clear current focus if any
-    selectedSpatialObject = objectId;
-    spatialObject = currentSpatialObjects[selectedSpatialObject];
+    selectedSpatialObject = objectId; // (global) Why not use 'var' other than implicit declaration http://stackoverflow.com/questions/1470488/what-is-the-function-of-the-var-keyword-and-when-to-use-it-or-omit-it#answer-1471738
+    var spatialObject = currentSpatialObjects[selectedSpatialObject];// (local)
     map.setView(spatialObject.marker.getLatLng(), 17, {animate: true}); // TODO: check the map._layersMaxZoom and set the zoom level accordingly
-    setTimeout(function () {
-        spatialObject.marker.openPopup();
-    }, 50);
-    setTimeout(function () {
-        if (!toggled){
-            $('#objectInfo').animate({width: 'toggle'}, 100);
-            toggled = true;
-        }
-        setTimeout(function () {
-            createChart();
-            getAlertsHistory(objectId);
-        },150);
-    }, 250);
+
+    $('#objectInfo').find('#objectInfoId').html(selectedSpatialObject);
+    spatialObject.marker.openPopup();
+    if (!toggled){
+        $('#objectInfo').animate({width: 'toggle'}, 100);
+        toggled = true;
+    }
+    getAlertsHistory(objectId);
     spatialObject.drawPath();
+    setTimeout(function () {
+        createChart();
+    },100);
 }
 
 // Unfocuse on current searched spatial object

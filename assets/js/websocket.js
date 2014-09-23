@@ -16,11 +16,11 @@
  * under the License.
  */
 
-var debugObject; // assign object and debug from browser console
-var showPathFlag  = false; // Flag to hold the status of draw objects path
+var debugObject; // assign object and debug from browser console, this is for debuging purpose , unless this var is unused
+var showPathFlag = false; // Flag to hold the status of draw objects path
 var currentSpatialObjects = {};
 var selectedSpatialObject; // This is set when user search for an object from the search box
-var websocket = new WebSocket('ws://localhost:9764/outputwebsocket/DefaultWebsocketOutputAdaptor/geoDataEndPoint');
+var websocket = new WebSocket('ws://10.100.4.82:9764/outputwebsocket/DefaultWebsocketOutputAdaptor/geoDataEndPoint');
 
 websocket.onopen = function () {
     $.UIkit.notify({
@@ -31,279 +31,18 @@ websocket.onopen = function () {
     });
 };
 
-
 websocket.onmessage = function processMessage(message) {
     var geojsonFeature = $.parseJSON(message.data);
     if (geojsonFeature.id in currentSpatialObjects) {
-        exsitingObject = currentSpatialObjects[geojsonFeature.id];
-        exsitingObject.update(geojsonFeature);
+        var excitingObject = currentSpatialObjects[geojsonFeature.id];
+        excitingObject.update(geojsonFeature);
     }
     else {
         var receivedObject = new SpatialObject(geojsonFeature);
         currentSpatialObjects[receivedObject.id] = receivedObject;
         currentSpatialObjects[receivedObject.id].addTo(map);
     }
-
-    return false;
-    var jsonData = JSON.parse(message.data);
-    var id = jsonData.event.payloadData.id;
-    var lat = jsonData.event.payloadData.lat;
-    var lon = jsonData.event.payloadData.longitude;
-    var speed = jsonData.event.payloadData.speed;
-    var speedFlag = jsonData.event.payloadData.speedFlag;
-    var stationFlag = jsonData.event.payloadData.withinTime;
-    var point = jsonData.event.payloadData.withinPoint;
-    var res = point.split(",");
-    bufferLat = res[1];
-    bufferLon = res[0];
-
-
-    var proximity1 = jsonData.event.payloadData.proximity;
-
-    if (proximity1 != "false" && proximity1 != null) {
-        var proxList = proximity1.split(",");
-        var proximityFlag = proxList[0];
-        proxCloseId = proxList[1];
-    }
-
-    mapUpdater(id, lat, lon, speed, speedFlag, stationFlag,
-        proximityFlag);
-
-}
-var idList = [];
-var markerLayer = new L.layerGroup();
-var polylineLayer = new L.layerGroup();
-var bufferLayer = new L.layerGroup();
-
-function mapUpdater(id, lat, lon, speed, speedFlag, stationedFlag, proximityFlag) {
-    var markerCheck = false;
-    var spdflg = document.getElementById("maxSpeed");
-    var stationedMaxTime = document.getElementById("maxStationed");
-    var proxi = document.getElementById("proximity");
-    var len = null;
-    var poly = null;
-    var mark = null;
-
-    //Adding The Markers and PolyLines
-    if (idList.length == 0) {
-
-        mark = L.marker([lat, lon], {icon: DefIcon}).bindPopup("Vehicle ID" + id, {
-            autoPan: false
-        });
-        markerLayer.addLayer(mark).addTo(map);
-        poly = L.polyline([], {
-            color: 'green'
-        });
-        polylineLayer.addLayer(poly).addTo(map);
-
-        idList.push([ id, mark, poly, false ]);
-//        idListArea.value += id + ", ";
-        return;
-    }
-
-    for (var i = idList.length; i > 0; i--) {
-        if (id == idList[i - 1][0]) {
-            len = i - 1;
-            break;
-
-        }
-        // If the ID is not in the list initiate new entry
-        else if ((i - 1) == 0) {
-            mark = L.marker([lat, lon], {icon: DefIcon}).bindPopup("Vehicle ID" + id, {
-                autoPan: false
-            });
-            markerLayer.addLayer(mark);
-            poly = L.polyline([], {
-                color: 'green'
-            });
-            polylineLayer.addLayer(poly).addTo(map);
-            len = idList.length - 1;
-
-            idList.push([ id, mark, poly, false ]);
-//            idListArea.value += id + ", ";
-            return;
-        }
-    }
-    return false;
-    // Checking for the Stationry Scenario
-    if (stationedMaxTime.checked && stationedFlag == "true") {
-
-        if (len != null) {
-
-            //Adding the buffers first
-            if (bufferList.length == 0) {
-
-                //The radius is fixed 20m
-                var circle = L.circle([ bufferLat, bufferLon ], 20, {
-                    color: 'black',
-                    fillColor: '#f03',
-                    fillOpacity: 0.3
-                }).bindPopup(
-                        "Location(Lat & Lon) of Buffer : " + bufferLat
-                        + " : " + bufferLon);
-
-                bufferLayer.addLayer(circle).addTo(map);
-                bufferList.push([ bufferLat, bufferLon, circle ]);
-
-            }
-
-            else {
-
-                for (var k = bufferList.length; k > 0; k--) {
-                    if (bufferList[k - 1][0] == bufferLat
-                        && bufferList[k - 1][1] == bufferLon) {
-                        break;
-                    } else if (k - 1 == 0) {
-
-                        var circle = L.circle([ 6.88985, 79.85882 ],
-                            20, {
-                                color: 'black',
-                                fillColor: '#f03',
-                                fillOpacity: 0.3
-                            }).bindPopup(
-                                "Lat,Lon of Buffer : " + bufferLat
-                                + " : " + bufferLon);
-
-                        bufferLayer.addLayer(circle).addTo(map);
-                        bufferList
-                            .push([ bufferLat, bufferLon, circle ]);
-
-                    }
-
-                }
-            }
-
-            if (stationedList.length == 0) {
-                stationedList.push([ id, bufferLat, bufferLon ]);
-
-            }
-
-            else {
-                for (var k = stationedList.length; k > 0; k--) {
-                    if (id == stationedList[k - 1][0]) {
-                        stationedList[k - 1][1] = bufferLat;
-                        stationedList[k - 1][2] = bufferLon;
-                        break;
-                    }
-                    if (k - 1 == 0) {
-                        stationedList
-                            .push([ id, bufferLat, bufferLon ]);
-                    }
-                }
-
-            }
-
-            idList[len][1].setIcon(redIcon).addTo(map);
-
-        }
-        markerCheck = true;
-    }
-
-    //Checking for the proximity Scenario
-
-    if (proxi.checked && proximityFlag == "true") {
-
-        // Adding to The proximity Alerted List
-        if (proxymintyList.length == 0) {
-            proxymintyList.push([ id, lat, lon, proxCloseId ]);
-
-        }
-
-        else {
-            for (var k = proxymintyList.length; k > 0; k--) {
-                if (id == proxymintyList[k - 1][0]) {
-                    proxymintyList[k - 1][1] = lat;
-                    proxymintyList[k - 1][2] = lon;
-                    proxymintyList[k - 1][3] = proxCloseId;
-                    break;
-                }
-                if (k - 1 == 0) {
-                    proxymintyList.push([ id, lat, lon, proxCloseId ]);
-                }
-            }
-        }
-        idList[len][1].setIcon(greenIcon).addTo(map);
-        markerCheck = true;
-
-    }
-
-    // Checking the speed Scenario
-
-    if (spdflg.checked && speedFlag == "true") {
-
-        //Adding to speed Alert List
-        if (speedAlertedlist.length == 0) {
-            speedAlertedlist.push([ id, lat, lon ]);
-
-        }
-
-        else {
-            for (var k = speedAlertedlist.length; k > 0; k--) {
-                if (id == speedAlertedlist[k - 1][0]) {
-                    speedAlertedlist[k - 1][1] = lat;
-                    speedAlertedlist[k - 1][2] = lon;
-                    break;
-                }
-                if (k - 1 == 0) {
-                    speedAlertedlist.push([ id, lat, lon ]);
-                }
-            }
-        }
-
-        idList[len][1].setIcon(pinkIcon);
-
-        if (idList[len][3] == false) {
-
-            idList[len][2].addLatLng([ lat, lon ]);
-            poly = L.polyline([], {
-                color: 'Red'
-            });
-            polylineLayer.addLayer(poly).addTo(map);
-            idList[len][2] = poly;
-            idList[len][3] = true;
-
-        }
-        markerCheck = true;
-
-    } else {
-        if (idList[len][3] == true) {
-            idList[i - 1][2].addLatLng([ lat, lon ]);
-            poly = L.polyline([], {
-                color: 'Green'
-            });
-            polylineLayer.addLayer(poly).addTo(map);
-            idList[len][2] = poly;
-            idList[len][3] = false;
-
-        }
-
-    }
-    if (!markerCheck) {
-        idList[len][1].setIcon(DefIcon);
-    }
-
-    idList[len][1].setLatLng([ lat, lon ]).update(); // updating the marker
-
-    if (document.getElementById('drawPath').checked) {
-        idList[len][2].addLatLng([ lat, lon ]); // updating the poly-line
-
-    }
-
-    if (showDetailFlag && showDetailId == id) {
-
-        showDetailsUpdater(id, lon, lat, speed);
-    }
-
-    if (document.getElementById("followId").checked
-        && document.getElementById("followID").value == id) {
-        map.panTo([ lat, lon ], {
-            duration: 0.5
-        });
-
-    }
-
-}
-
+};
 
 var normalIcon = L.icon({
     iconUrl: "assets/img/markers/arrow_normal.png",
@@ -325,8 +64,7 @@ var offlineIcon = L.icon({
     iconAnchor: [+12, +12],
     popupAnchor: [-2, -5] //[-3,-76]
 });
-
-var defaultIcon =  L.icon({
+var defaultIcon = L.icon({
     iconUrl: "assets/img/markers/default_icons/marker-icon.png",
     iconSize: [24, 24],
     iconAnchor: [+12, +12],
@@ -337,15 +75,32 @@ function SpatialObject(geoJSON) {
     this.id = geoJSON.id;
 
     // Have to store the coordinates , to use when user wants to draw path
-    this.pathGeoJson = {
-        "type": "LineString",
-        "coordinates": []
+    this.pathGeoJsons = []; // GeoJson standard MultiLineString(http://geojson.org/geojson-spec.html#id6) can't use here because this is a collection of paths(including property attributes)
+    this.path = []; // Path is an array of sections, where each section is a notified state of the path
+//    {
+//        "type": "LineString",
+//        "coordinates": []
+//    };
+
+
+    // Private variable as a LineStringFeature template
+    var createLineStringFeature = function (state, information, coordinates) {
+        return {"type": "Feature",
+            "properties": {
+                "state": state,
+                "information": information
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [coordinates]
+            }
+        };
     };
-    this.alertsHistory = []; // TODO: (done) fetch this array from backend DB rather than keeping as in-memory array
+
     this.speedHistory = ['speed']; // TODO: fetch this array from backend DB rather than keeping as in-memory array
     this.geoJson = L.geoJson(geoJSON, {
         pointToLayer: function (feature, latlng) {
-            return L.marker(latlng,{icon:normalIcon,iconAngle: this.heading});
+            return L.marker(latlng, {icon: normalIcon, iconAngle: this.heading});
         }
     }); // Create Leaflet GeoJson object
 
@@ -359,13 +114,13 @@ function SpatialObject(geoJSON) {
     this.setSpeed = function (speed) {
         this.speed = speed;
         this.speedHistory.push(speed);
-        if(this.speedHistory.length > 20){
-            this.speedHistory.splice(1,1);
+        if (this.speedHistory.length > 20) {
+            this.speedHistory.splice(1, 1);
         }
     };
-    this.stateIcon = function(){
+    this.stateIcon = function () {
         // Performance of if-else, switch or map based conditioning http://stackoverflow.com/questions/8624939/performance-of-if-else-switch-or-map-based-conditioning
-        switch(this.state) {
+        switch (this.state) {
             case "NORMAL":
                 return normalIcon;
                 break;
@@ -380,23 +135,62 @@ function SpatialObject(geoJSON) {
         }
     };
     this.updatePath = function (LatLng) {
-        if(!this.path)
-            throw "geoDashboard error: Draw a path before updating it"; // Can't update without drawing a path
-        this.path.addLatLng(LatLng);
+        this.path[this.path.length - 1].addLatLng(LatLng); // add LatLng to last section
+//        try{
+//            this.path[this.path.length - 1].addLatLng(LatLng); // add to last section
+//        }catch (error){
+//            this.path[this.path.length - 1].addTo(map); // TODO: this will only add the last path section which is not added to map , middle sections ???
+//        }
     };
-
     this.drawPath = function () {
-        if(this.path){
+        var previousSectionLastPoint = []; // re init all the time when calls the function
+        if (this.path.length > 0) {
             this.removePath();
-            //throw "geoDashboard error: path already exist,remove current path before drawing a new path, if need to update LatLngs use setLatLngs method instead"; // Path already exist
+//            throw "geoDashboard error: path already exist,remove current path before drawing a new path, if need to update LatLngs use setLatLngs method instead"; // Path already exist
         }
-        this.path = new L.polyline(this.pathGeoJson.coordinates,{color: 'blue',weight: 5}); // Create path object when and only drawing the path (save memory)
-        this.path.addTo(map);
+        for (var lineString in this.pathGeoJsons) {
+            var currentSectionState = this.pathGeoJsons[lineString].properties.state;
+            var currentSection = new L.polyline(this.pathGeoJsons[lineString].geometry.coordinates, getSectionStyles(currentSectionState)); // Create path object when and only drawing the path (save memory) TODO: if need directly draw line from geojson
+
+            var currentSectionFirstPoint = this.pathGeoJsons[lineString].geometry.coordinates[0];
+            console.log("DEBUG: previousSectionLastPoint = " + previousSectionLastPoint + " currentSectionFirstPoint = " + currentSectionFirstPoint);
+            previousSectionLastPoint.push(currentSectionFirstPoint);
+            var sectionJoin = new L.polyline(previousSectionLastPoint);
+            previousSectionLastPoint = [this.pathGeoJsons[lineString].geometry.coordinates[this.pathGeoJsons[lineString].geometry.coordinates.length - 1]];
+            sectionJoin.addTo(map);
+            this.path.push(sectionJoin);
+
+            currentSection.bindPopup(this.pathGeoJsons[lineString].properties.information);
+            currentSection.addTo(map);
+            this.path.push(currentSection);
+        }
     };
 
     this.removePath = function () {
-        map.removeLayer(this.path);
-        this.path = null; // Clear the path layer (save memory)
+        for (var section in this.path) {
+            map.removeLayer(this.path[section]);
+        }
+        this.path = []; // Clear the path layer (save memory)
+    };
+    var pathColor;
+    var getSectionStyles = function (state) {
+        switch (state) {
+            case "NORMAL":
+                pathColor = 'blue'; // Scope of function
+                break;
+            case "ALERTED":
+                pathColor = 'red';
+                break;
+            case "WARNING":
+                pathColor = 'yellow';
+                break;
+            case "OFFLINE":
+                pathColor = 'green';
+                break;
+            default:
+                return defaultIcon;
+        }
+        return {color: pathColor, weight: 5};
     };
     this.update = function (geoJSON) {
         this.latitude = geoJSON.geometry.coordinates[1];
@@ -408,8 +202,25 @@ function SpatialObject(geoJSON) {
 //            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject("+this.id+")'>"+this.id+"</span> change state to: <span style='color: red'>"+geoJSON.properties.state+"</span> Info : "+geoJSON.properties.information);
 //        }
 
-        if(geoJSON.properties.notify){
-            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject("+this.id+")'>"+this.id+"</span> change state to: <span style='color: red'>"+geoJSON.properties.state+"</span> Info : "+geoJSON.properties.information);
+        if (geoJSON.properties.notify) {
+            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject(" + this.id + ")'>" + this.id + "</span> change state to: <span style='color: red'>" + geoJSON.properties.state + "</span> Info : " + geoJSON.properties.information);
+            var newLineStringGeoJson = createLineStringFeature(this.state, this.information, [geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
+            this.pathGeoJsons.push(newLineStringGeoJson);
+
+            // only add the new path section if the spatial object is selected
+            if (selectedSpatialObject == this.id) {
+                var newPathSection = new L.polyline(newLineStringGeoJson.geometry.coordinates, getSectionStyles(geoJSON.properties.state));
+
+                var lastSection = this.path[this.path.length - 1].getLatLngs();
+                var joinLine = [lastSection[lastSection.length - 1],[geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]];
+                debugObject = joinLine;
+                var sectionJoin = new L.polyline(joinLine);
+                sectionJoin.addTo(map);
+                this.path.push(sectionJoin);
+                this.path.push(newPathSection); // Order of the push matters , last polyLine object should be the section
+
+                newPathSection.addTo(map);
+            }
         }
 
         this.state = geoJSON.properties.state;
@@ -418,14 +229,23 @@ function SpatialObject(geoJSON) {
         this.marker.setLatLng([this.latitude, this.longitude]);
         this.marker.setIconAngle(this.heading);
         this.marker.setIcon(this.stateIcon());
-        // wired o.O but to prevent conflicts in
-        // Leaflet(http://leafletjs.com/reference.html#latlng) and geoJson standards(http://geojson.org/geojson-spec.html#id2),
-        // have to do this swapping, but the resulting geoJson in not upto geoJson standards
-        this.pathGeoJson.coordinates.push([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
-        if(selectedSpatialObject == this.id){
-            this.updatePath([geoJSON.geometry.coordinates[1],geoJSON.geometry.coordinates[0]]);
+
+        try {
+            // wired o.O but to prevent conflicts in
+            // Leaflet(http://leafletjs.com/reference.html#latlng) and geoJson standards(http://geojson.org/geojson-spec.html#id2),
+            // have to do this swapping, but the resulting geoJson in not upto geoJson standards
+            this.pathGeoJsons[this.pathGeoJsons.length - 1].geometry.coordinates.push([geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
+        }
+        catch (error) {
+            console.log("DEBUG: Dam error = " + error);
+            // TODO: optimize if can , catch block execute only when initializing the object (suggestion do this in object initialization stage)
+            newLineStringGeoJson = createLineStringFeature(this.state, this.information, [geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
+            this.pathGeoJsons.push(newLineStringGeoJson);
+        }
+        if (selectedSpatialObject == this.id) {
+            this.updatePath([geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
             chart.load({columns: [this.speedHistory]});
-            map.setView([this.latitude,this.longitude]);
+            map.setView([this.latitude, this.longitude]);
         }
         this.popupTemplate.find('#objectId').html(this.id);
         this.popupTemplate.find('#information').html(this.information);
@@ -441,24 +261,24 @@ function SpatialObject(geoJSON) {
 
 function notifyAlert(message) {
     $.UIkit.notify({
-        message: "Alert: "+message,
+        message: "Alert: " + message,
         status: 'warning',
         timeout: 3000,
         pos: 'bottom-left'
     });
-};
+}
 
-function Alert(type,message,level){
+function Alert(type, message, level) {
     this.type = type;
     this.message = message;
-    if(level)
+    if (level)
         this.level = level;
     else
         this.level = 'info';
 
     this.notify = function () {
         $.UIkit.notify({
-            message: this.level+': '+this.type+' '+this.message,
+            message: this.level + ': ' + this.type + ' ' + this.message,
             status: 'info',
             timeout: 1000,
             pos: 'bottom-left'

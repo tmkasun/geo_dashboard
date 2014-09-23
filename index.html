@@ -66,7 +66,7 @@
 
     <style>
         /*
-        Move this styles to separate CSS for clarity.
+        TODO: Move this styles to separate CSS for clarity.
         */
         .navbar {
             background-color: rgba(54, 51, 45, 0.7);
@@ -94,10 +94,19 @@
             /*To prevent cutting off the top element by header bar in dashboard*/
             top: 50px;
         }
+        .leaflet-right{
+            /* to prevent showing layers controller over objectInfor side pane */
+            z-index: 0;
+        }
 
         .leaflet-popup-content{
-            width:200px !important;
+            width:200px;
             margin: 6px;
+        }
+
+        #objectInfoCloseButton:hover{
+            cursor: pointer;
+            color: firebrick;
         }
 
     </style>
@@ -151,9 +160,15 @@
 
 
 
-<div id="objectInfo" style="background: none repeat scroll 0% 0% rgba(85, 250, 206, 0.2);display: none;border-radius: 13px;z-index: 1000;height: 94%;padding: 0px" class="col-md-2 pull-right" >
+<div id="objectInfo" style="background: darkgray;display: none;border-radius: 13px;height: 94%;padding: 0px" class="col-md-2 pull-right" >
+    <div class="panel-heading text-center">
+        <h4> Spatial Object ID: <span id="objectInfoId" class="text-info"></span>
+            <i id="objectInfoCloseButton" class="fa fa-times pull-right" onclick="$('#objectInfo').animate({width: ['toggle','swing']},200);spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;toggled = false;">
+            </i>
+        </h4>
+    </div>
     <div class="panel panel-default" style="max-height: 47%;overflow: auto;box-shadow: 0px 0px 8px 0px #635749">
-        <div class="panel-heading text-center"><h4>Speed variation<i style="cursor: pointer;" onclick="$('#objectInfo').animate({width: ['toggle','swing']},200);spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;toggled = false;" class="fa fa-times pull-right"></i></h4>
+        <div class="panel-heading text-center"><h4>Speed variation</h4>
         </div>
         <div class="panel-body">
             <!-- TODO:  setting `margin-left` to increase the area of the chart is a bad hack there should be a better way to do this check :P -->
@@ -170,7 +185,6 @@
 
         </div>
     </div><!--/panel-->
-
 </div>
 
 
@@ -247,7 +261,7 @@
                     <li><a style="margin-left: 20%;" ><i class="fa fa-area-chart"></i>    Show speed graph</a></li>
                 </ul>
                 <script>
-                    // TODO: move this script to proper place
+                    // TODO: move this script to proper place <deprecated longer using this because of noodles effect ;) >
                     $('#showPathCheck').change(function() {
                         if(this.checked) {
                             for (spatialObject in currentSpatialObjects) {
@@ -726,7 +740,7 @@
     </div>
 
     <div id="setWithinAlert" >
-        <form role="form" style="width: 300px">
+        <form role="form" style="width: auto;">
             <div class="form-group">
                 <label class="text-primary" for="queryName">Query name</label>
                 <input class="form-control" id="queryName" placeholder="Query name" type="text">
