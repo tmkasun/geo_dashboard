@@ -107,7 +107,7 @@ function initializeMap(tileLayer) {
         maxNativeZoom: 18
     });
 
-    map.on('click', function(e) {
+    map.on('click', function (e) {
         $.UIkit.offcanvas.hide();//[force = false] no animation
     });
 }
@@ -165,10 +165,10 @@ var zoomControl = L.control.zoom({
 /* Larger screens get expanded layer control and visible sidebar */
 // -for reference change to permanent collapsed true -
 /*if (document.body.clientWidth <= 767) {
-    var isCollapsed = true;
-} else {
-    var isCollapsed = false;
-}*/
+ var isCollapsed = true;
+ } else {
+ var isCollapsed = false;
+ }*/
 
 
 var groupedOverlays = {
@@ -248,14 +248,24 @@ $('#searchbox').typeahead({
 // TODO: when click on a notification alert ? "Uncaught ReferenceError: KM is not defined "
 var toggled = false;
 function focusOnSpatialObject(objectId) {
-    clearFocuse(); // Clear current focus if any
+    var spatialObject = currentSpatialObjects[objectId];// (local)
+    if (!spatialObject) {
+        $.UIkit.notify({
+            message: "Spatial Object <span style='color:red'>" + objectId + "</span> not in the Map!!",
+            status: 'warning',
+            timeout: 3000,
+            pos: 'top-center'
+        });
+        return false;
+    }
+    clearFocus(); // Clear current focus if any
     selectedSpatialObject = objectId; // (global) Why not use 'var' other than implicit declaration http://stackoverflow.com/questions/1470488/what-is-the-function-of-the-var-keyword-and-when-to-use-it-or-omit-it#answer-1471738
-    var spatialObject = currentSpatialObjects[selectedSpatialObject];// (local)
+
     map.setView(spatialObject.marker.getLatLng(), 17, {animate: true}); // TODO: check the map._layersMaxZoom and set the zoom level accordingly
 
     $('#objectInfo').find('#objectInfoId').html(selectedSpatialObject);
     spatialObject.marker.openPopup();
-    if (!toggled){
+    if (!toggled) {
         $('#objectInfo').animate({width: 'toggle'}, 100);
         toggled = true;
     }
@@ -263,12 +273,12 @@ function focusOnSpatialObject(objectId) {
     spatialObject.drawPath();
     setTimeout(function () {
         createChart();
-    },100);
+    }, 100);
 }
 
-// Unfocuse on current searched spatial object
-function clearFocuse(){
-    if(selectedSpatialObject){
+// Unfocused on current searched spatial object
+function clearFocus() {
+    if (selectedSpatialObject) {
         spatialObject = currentSpatialObjects[selectedSpatialObject];
         spatialObject.removePath();
         spatialObject.marker.closePopup();
