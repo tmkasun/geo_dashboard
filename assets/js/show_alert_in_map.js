@@ -26,34 +26,30 @@ function showAlertInMap(alertData) {
 
     var alertLatLngPoint = L.latLng(latitude,longitude);
 
-//    var alertOccouredArea = L.circle(alertLatLngPoint, 10, {
-//        color: 'red',
-//        fillColor: '#f03',
-//        fillOpacity: 0.5
-//    }).addTo(map);
+    var alertOccouredArea = L.circle(alertLatLngPoint, 10, {
+        color: '#FF9900',
+        fillColor: '#FF00FF',
+        fillOpacity: 0.5
+    }).addTo(map);
 
-    var alertPulse = new R.Pulse(
-        alertLatLngPoint,
-        8,
-        {'stroke': '#FF9E0E', 'fill': '#FF0000'},
-        {'stroke': '#FF3E2F', 'stroke-width': 3});
-
-    map.addLayer(alertPulse);
-    map.setView(alertLatLngPoint,18);
-    clearFocuse();
-
-//    alertOccouredArea.bindPopup("Id: <b>"+id+"</b><br>"+
-//                                "State: <b>"+state+"</b><br>"+
-//                                "Information: <b>"+information+"</b><br>"
-//    ).openPopup();
-
-    var popup = L.popup({closeButton: true},alertPulse)
-        .setLatLng(alertLatLngPoint)
-        .setContent(
-            "Id: <b>"+id+"</b><br>"+
+    alertOccouredArea.bindPopup("Id: <b>"+id+"</b><br>"+
             "State: <b>"+state+"</b><br>"+
             "Information: <b>"+information+"</b><br>"
-        )
-        .openOn(map);
+    ).openPopup();
+    $(alertOccouredArea._popup._closeButton).on("click",function(){map.removeLayer(alertOccouredArea)});
+    map.setView(alertLatLngPoint,18);
+
+    clearFocus();
+
+    /* TODO: for reference <Update lib or remove if not in use>: This `R`(RaphaelLayer: https://github.com/dynmeth/RaphaelLayer) library is dam buggy can't use it reliably */
+    /*
+    var alertPulse = new R.Pulse(
+     alertLatLngPoint,
+     8,
+     {'stroke': '#FF9E0E', 'fill': '#FF0000'},
+     {'stroke': '#FF3E2F', 'stroke-width': 3});
+     map.addLayer(alertPulse);
+     */
+
 
 }
