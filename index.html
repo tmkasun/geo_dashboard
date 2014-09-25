@@ -37,6 +37,7 @@
     <script src="assets/js/jquery-2.1.1.min.js"></script>
     <script src="assets/js/jquery-ui.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
+
     <!-- Leaflet plugins libries -->
     <script src="assets/js/leaflet/leaflet.js"></script>
     <script src="assets/js/leaflet/leaflet.markercluster.js"></script>
@@ -45,8 +46,10 @@
     <script src="assets/js/leaflet/Leaflet.fullscreen.min.js"></script>
     <script src="assets/js/leaflet/Marker.Rotate.js"></script>
     <script src="assets/js/leaflet/leaflet.draw.js"></script>
-    <script src="assets/js/leaflet/rlayer.js"></script>
-    <script src="assets/js/leaflet/raphael-min.js"></script>
+
+    <!-- TODO: for reference <Update lib or remove if not in use>: This `R`(RaphaelLayer: https://github.com/dynmeth/RaphaelLayer) library is dam buggy can't use it reliably -->
+    <!--<script src="assets/js/leaflet/rlayer.js"></script>-->
+    <!--<script src="assets/js/leaflet/raphael-min.js"></script>-->
 
     <script src="assets/js/typeahead.bundle.min.js"></script>
 
@@ -163,7 +166,7 @@
 <div id="objectInfo" style="background: darkgray;display: none;border-radius: 13px;height: 94%;padding: 0px" class="col-md-2 pull-right" >
     <div class="panel-heading text-center">
         <h4> Spatial Object ID: <span id="objectInfoId" class="text-info"></span>
-            <i id="objectInfoCloseButton" class="fa fa-times pull-right" onclick="$('#objectInfo').animate({width: ['toggle','swing']},200);spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;toggled = false;">
+            <i id="objectInfoCloseButton" class="fa fa-times pull-right" onclick="$('#objectInfo').animate({width: ['toggle','swing']},200);toggled = false;spatialObject = currentSpatialObjects[selectedSpatialObject];spatialObject.removePath();spatialObject.marker.closePopup();selectedSpatialObject = null;">
             </i>
         </h4>
     </div>
