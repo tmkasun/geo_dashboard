@@ -16,11 +16,11 @@
  * under the License.
  */
 
-var debugObject; // assign object and debug from browser console, this is for debuging purpose , unless this var is unused
+var debugObject; // assign object and debug from browser console, this is for debugging purpose , unless this var is unused
 var showPathFlag = false; // Flag to hold the status of draw objects path
 var currentSpatialObjects = {};
 var selectedSpatialObject; // This is set when user search for an object from the search box
-var websocket = new WebSocket('ws://10.100.4.82:9764/outputwebsocket/DefaultWebsocketOutputAdaptor/geoDataEndPoint');
+var websocket = new WebSocket('ws://localhost:9764/outputwebsocket/DefaultWebsocketOutputAdaptor/geoDataEndPoint');
 
 websocket.onopen = function () {
     $.UIkit.notify({
@@ -32,13 +32,13 @@ websocket.onopen = function () {
 };
 
 websocket.onmessage = function processMessage(message) {
-    var geojsonFeature = $.parseJSON(message.data);
-    if (geojsonFeature.id in currentSpatialObjects) {
-        var excitingObject = currentSpatialObjects[geojsonFeature.id];
-        excitingObject.update(geojsonFeature);
+    var geoJsonFeature = $.parseJSON(message.data);
+    if (geoJsonFeature.id in currentSpatialObjects) {
+        var excitingObject = currentSpatialObjects[geoJsonFeature.id];
+        excitingObject.update(geoJsonFeature);
     }
     else {
-        var receivedObject = new SpatialObject(geojsonFeature);
+        var receivedObject = new SpatialObject(geoJsonFeature);
         currentSpatialObjects[receivedObject.id] = receivedObject;
         currentSpatialObjects[receivedObject.id].addTo(map);
     }
@@ -105,8 +105,11 @@ function SpatialObject(geoJSON) {
     }); // Create Leaflet GeoJson object
 
     this.marker = this.geoJson.getLayers()[0];
+    this.marker.options.title = this.id;
+
     this.popupTemplate = $('#markerPopup');
     this.marker.bindPopup(this.popupTemplate.html());
+
     /* Method definitions */
     this.addTo = function (map) {
         this.geoJson.addTo(map);
@@ -155,12 +158,12 @@ function SpatialObject(geoJSON) {
             var currentSectionFirstPoint = this.pathGeoJsons[lineString].geometry.coordinates[0];
             console.log("DEBUG: previousSectionLastPoint = " + previousSectionLastPoint + " currentSectionFirstPoint = " + currentSectionFirstPoint);
             previousSectionLastPoint.push(currentSectionFirstPoint);
-            var sectionJoin = new L.polyline(previousSectionLastPoint);
+            var sectionJoin = new L.polyline(previousSectionLastPoint, getSectionStyles());
             previousSectionLastPoint = [this.pathGeoJsons[lineString].geometry.coordinates[this.pathGeoJsons[lineString].geometry.coordinates.length - 1]];
             sectionJoin.addTo(map);
             this.path.push(sectionJoin);
-
-            currentSection.bindPopup(this.pathGeoJsons[lineString].properties.information);
+            console.log("DEBUG: Alert Information: " + this.pathGeoJsons[lineString].properties.information);
+            currentSection.bindPopup("Alert Information: " + this.pathGeoJsons[lineString].properties.information);
             currentSection.addTo(map);
             this.path.push(currentSection);
         }
@@ -172,6 +175,7 @@ function SpatialObject(geoJSON) {
         }
         this.path = []; // Clear the path layer (save memory)
     };
+
     var pathColor;
     var getSectionStyles = function (state) {
         switch (state) {
@@ -182,76 +186,80 @@ function SpatialObject(geoJSON) {
                 pathColor = 'red';
                 break;
             case "WARNING":
-                pathColor = 'yellow';
+                pathColor = 'orange';
                 break;
             case "OFFLINE":
                 pathColor = 'green';
                 break;
             default:
-                return defaultIcon;
+                return {color: "#19FFFF", weight: 8};
         }
-        return {color: pathColor, weight: 5};
+        return {color: pathColor, weight: 8};
     };
+    
     this.update = function (geoJSON) {
         this.latitude = geoJSON.geometry.coordinates[1];
         this.longitude = geoJSON.geometry.coordinates[0];
         this.setSpeed(geoJSON.properties.speed);
-        // -- for reference previous method for notify the state change , now this is done in CEP side --
-//        if(this.state != geoJSON.properties.state && this.state){
-//            this.alertsHistory.push(new Alert(geoJSON.properties.state,geoJSON.properties.information));
-//            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject("+this.id+")'>"+this.id+"</span> change state to: <span style='color: red'>"+geoJSON.properties.state+"</span> Info : "+geoJSON.properties.information);
-//        }
+        this.state = geoJSON.properties.state;
+        this.heading = geoJSON.properties.heading;
+
+        this.information = geoJSON.properties.information;
 
         if (geoJSON.properties.notify) {
             notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject(" + this.id + ")'>" + this.id + "</span> change state to: <span style='color: red'>" + geoJSON.properties.state + "</span> Info : " + geoJSON.properties.information);
-            var newLineStringGeoJson = createLineStringFeature(this.state, this.information, [geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
+            var newLineStringGeoJson = createLineStringFeature(this.state, this.information, [this.latitude, this.longitude]);
             this.pathGeoJsons.push(newLineStringGeoJson);
 
-            // only add the new path section if the spatial object is selected
+            // only add the new path section to map if the spatial object is selected
             if (selectedSpatialObject == this.id) {
                 var newPathSection = new L.polyline(newLineStringGeoJson.geometry.coordinates, getSectionStyles(geoJSON.properties.state));
+                newPathSection.bindPopup("Alert Information: " + newLineStringGeoJson.properties.information);
 
+                // Creating two sections joint
                 var lastSection = this.path[this.path.length - 1].getLatLngs();
-                var joinLine = [lastSection[lastSection.length - 1],[geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]];
-                debugObject = joinLine;
-                var sectionJoin = new L.polyline(joinLine);
-                sectionJoin.addTo(map);
-                this.path.push(sectionJoin);
-                this.path.push(newPathSection); // Order of the push matters , last polyLine object should be the section
+                var joinLine = [lastSection[lastSection.length - 1], [this.latitude, this.longitude]];
+                var sectionJoin = new L.polyline(joinLine, getSectionStyles());
 
+                this.path.push(sectionJoin);
+                this.path.push(newPathSection); // Order of the push matters , last polyLine object should be the `newPathSection` not the `sectionJoin`
+
+                sectionJoin.addTo(map);
                 newPathSection.addTo(map);
             }
         }
 
-        this.state = geoJSON.properties.state;
-        this.heading = geoJSON.properties.heading;
-        this.information = geoJSON.properties.information;
+        // Update the spatial object leaflet marker
         this.marker.setLatLng([this.latitude, this.longitude]);
         this.marker.setIconAngle(this.heading);
         this.marker.setIcon(this.stateIcon());
 
         try {
-            // wired o.O but to prevent conflicts in
+            // To prevent conflicts in
             // Leaflet(http://leafletjs.com/reference.html#latlng) and geoJson standards(http://geojson.org/geojson-spec.html#id2),
             // have to do this swapping, but the resulting geoJson in not upto geoJson standards
             this.pathGeoJsons[this.pathGeoJsons.length - 1].geometry.coordinates.push([geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
         }
         catch (error) {
             console.log("DEBUG: Dam error = " + error);
-            // TODO: optimize if can , catch block execute only when initializing the object (suggestion do this in object initialization stage)
+            // TODO: optimize if can , catch block execute only when initializing the object (suggestion do this in object initialization stage but then redundant LatLng)
             newLineStringGeoJson = createLineStringFeature(this.state, this.information, [geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
             this.pathGeoJsons.push(newLineStringGeoJson);
         }
+
         if (selectedSpatialObject == this.id) {
             this.updatePath([geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
             chart.load({columns: [this.speedHistory]});
             map.setView([this.latitude, this.longitude]);
         }
+
+        // TODO: remove consecutive two lines object ID never change with time + information toggled only when `geoJSON.properties.notify` true (done in CEP side)
         this.popupTemplate.find('#objectId').html(this.id);
         this.popupTemplate.find('#information').html(this.information);
+
         this.popupTemplate.find('#speed').html(this.speed);
         this.popupTemplate.find('#heading').html(this.heading);
-        this.marker._popup.setContent(this.popupTemplate.html())
+        this.marker.setPopupContent(this.popupTemplate.html())
 
 
     };
