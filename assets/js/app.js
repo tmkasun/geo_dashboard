@@ -28,57 +28,29 @@ $('body').on('hidden.bs.modal', '.modal', function () {
 });
 
 /*Map layer configurations*/
-var map, boroughSearch = [], theaterSearch = [];
+var map;
+
+getTileServers();
+getWms();
+initializeMap();
 
 $("#loading").hide();
 
-getTileServers();
+navigator.geolocation.getCurrentPosition(success, error);
 
-/* Overlay Layers */
-var highlight = L.geoJson(null);
-
-var boroughs = L.geoJson(null, {
-    style: function (feature) {
-        return {
-            color: "black",
-            fill: false,
-            opacity: 1,
-            clickable: false
-        };
-    },
-    onEachFeature: function (feature, layer) {
-        boroughSearch.push({
-            name: layer.feature.properties.BoroName,
-            source: "Boroughs",
-            id: L.stamp(layer),
-            bounds: layer.getBounds()
-        });
-    }
-});
-
-/* Single marker cluster layer to hold all clusters */
-var markerClusters = new L.MarkerClusterGroup({
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    zoomToBoundsOnClick: true,
-    disableClusteringAtZoom: 16
-});
-
-var browserLatitude;
-var browserLongitude;
 function success(position) {
-    browserLatitude = position.coords.latitude;
-    browserLongitude = position.coords.longitude;
+    var browserLatitude = position.coords.latitude;
+    var browserLongitude = position.coords.longitude;
+    map.setView([browserLatitude, browserLongitude]);
+    map.setZoom(13);
+
 
     $.UIkit.notify({
-        message: "Setting map view to browser location....",
+        message: "Map view set to browser's location",
         status: 'info',
         timeout: 3000,
         pos: 'top-center'
     });
-
-    map.setView([browserLatitude, browserLongitude]);
-    map.setZoom(13);
 };
 
 function error() {
@@ -90,17 +62,14 @@ function error() {
     });
 };
 
-navigator.geolocation.getCurrentPosition(success, error);
-
-initializeMap();
-
-function initializeMap(tileLayer) {
-    if (typeof(tileLayer) === 'undefined') tileLayer = defaultOSM;
-    if (typeof(map) !== 'undefined') map.remove();
+function initializeMap() {
+    if (typeof(map) !== 'undefined'){
+        map.remove();
+    }
     map = L.map("map", {
         zoom: 10,
         center: [6.934846, 79.851980],
-        layers: [defaultOSM, boroughs, markerClusters, highlight],
+        layers: [defaultOSM],
         zoomControl: false,
         attributionControl: false,
         maxZoom: 20,
@@ -111,11 +80,6 @@ function initializeMap(tileLayer) {
         $.UIkit.offcanvas.hide();//[force = false] no animation
     });
 }
-
-/* Clear feature highlight when map is clicked */
-map.on("click", function (e) {
-    highlight.clearLayers();
-});
 
 /* Attribution control */
 function updateAttribution(e) {
@@ -138,44 +102,18 @@ attributionControl.onAdd = function (map) {
 };
 map.addControl(attributionControl);
 
-var fullscreenControl = L.control.fullscreen({
+L.control.fullscreen({
     position: 'bottomright'
 }).addTo(map);
-
-var zoomControl = L.control.zoom({
+L.control.zoom({
     position: "bottomright"
 }).addTo(map);
-
-/* GPS enabled geolocation control set to follow the user's location */
-/* TODO: for reference only remove if not use */
-//var locateControl = L.control.locate({
-//    drawCircle: false,
-//    showPopup: false,
-//    setView: true,
-//    keepCurrentZoomLevel: true,
-//    metric: true,
-//    locateOptions: {
-//        maxZoom: 18,
-//        watch: true,
-//        enableHighAccuracy: true
-//    }
-//}).addTo(map);
-//locateControl.locate();
-
-/* Larger screens get expanded layer control and visible sidebar */
-// -for reference change to permanent collapsed true -
-/*if (document.body.clientWidth <= 767) {
- var isCollapsed = true;
- } else {
- var isCollapsed = false;
- }*/
-
 
 var groupedOverlays = {
     "Web Map Service layers": {
     }
 };
-getWms();
+
 var layerControl = L.control.groupedLayers(baseLayers, groupedOverlays, {
     collapsed: true
 }).addTo(map);
@@ -185,7 +123,7 @@ $("#searchbox").click(function () {
     $(this).select();
 });
 
-/* Typeahead search functionality */
+/* TypeAhead search functionality */
 
 var substringMatcher = function () {
     return function findMatches(q, cb) {
@@ -202,15 +140,13 @@ var substringMatcher = function () {
     };
 };
 
-
 var chart;
-var speedArray = ['speed'];
 function createChart() {
     chart = c3.generate({
         bindto: '#chart_div',
         data: {
             columns: [
-                speedArray
+                ['speed']
             ]
         },
         subchart: {
@@ -236,7 +172,7 @@ $('#searchbox').typeahead({
         minLength: 1
     },
     {
-        name: 'states',
+        name: 'speed',
         displayKey: 'value',
         source: substringMatcher()
     }).on('typeahead:selected', function ($e, datum) {

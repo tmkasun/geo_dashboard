@@ -56,7 +56,6 @@ function openWithinTools() {
                 return controlDiv;
             }
         });
-    ;
     var removeAllControl = new L.Control.RemoveAll();
     map.addControl(removeAllControl);
 
@@ -111,9 +110,10 @@ function openWithinTools() {
         var type = e.layerType,
             layer = e.layer;
 
-        if (type === 'marker') {
+/*        if (type === 'marker') {
             // Do marker specific actions
-        }
+        }*/
+
         drawnItems.addLayer(layer);
         createPopup(layer);
 
@@ -122,7 +122,7 @@ function openWithinTools() {
 }
 
 function createPopup(layer) {
-    popupTemplate = $('#setWithinAlert');
+    var popupTemplate = $('#setWithinAlert');
     popupTemplate.find('#exportGeoJson').attr('leaflet_id', layer._leaflet_id);
     popupTemplate.find('#editGeoJson').attr('leaflet_id', layer._leaflet_id);
     popupTemplate.find('#addWithinAlert').attr('leaflet_id', layer._leaflet_id);
@@ -132,16 +132,17 @@ function createPopup(layer) {
 }
 
 function closeWithinTools(leafletId) {
-    map._layers[leafletId].closePopup().unbindPopup();
+    map.removeLayer(map._layers[leafletId]);
     map.removeControl(drawControl);
+    console.log("DEBUG: closeWithinTools(leafletId) = "+leafletId);
 }
 
 /* Export selected area on the map as a json encoded geoJson standard file, no back-end calls simple HTML5 trick ;) */
 function exportToGeoJSON(link, content) {
     // HTML5 features has been used here
-    geoJsonData = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
+    var geoJsonData = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
     // TODO: replace closest()  by using persistence id for templates, template id prefixed by unique id(i.e leaflet_id)
-    fileName = $(link).closest('form').find('#areaName').val() || 'geoJson';
+    var fileName = $(link).closest('form').find('#areaName').val() || 'geoJson';
     $(link).attr({
         'href': geoJsonData,
         'target': '_blank',
@@ -190,7 +191,7 @@ function updateDrawing(updatedGeoJson) {
     updatedGeoJson = JSON.parse(updatedGeoJson);
     // Pop the last LatLng pair because according to the geoJSON standard it use complete round LatLng set to store polygon coordinates
     updatedGeoJson.geometry.coordinates[0].pop();
-    leafletLatLngs = [];
+    var leafletLatLngs = [];
     $.each(updatedGeoJson.geometry.coordinates[0], function (idx, pItem) {
         leafletLatLngs.push({lat: pItem[1], lng: pItem[0]});
     });
@@ -218,12 +219,12 @@ function updateDrawing(updatedGeoJson) {
 
 
 function viewFence(geoFenceElement) {
-    geoJson = JSON.parse($(geoFenceElement).attr('data-geoJson'));
+    var geoJson = JSON.parse($(geoFenceElement).attr('data-geoJson'));
     var queryName = $(geoFenceElement).attr('data-queryName');
     var areaName = $(geoFenceElement).attr('data-areaName');
 
     geoJson.coordinates[0].pop(); // popout the last coordinate set(lat,lng pair) due to circular chain
-    leafletLatLngs = [];
+    var leafletLatLngs = [];
     $.each(geoJson.coordinates[0], function (idx, pItem) {
         leafletLatLngs.push({lat: pItem[1], lng: pItem[0]});
     });
@@ -232,7 +233,7 @@ function viewFence(geoFenceElement) {
     map.addLayer(polygon);
 
     $('#templateLoader').load("assets/html_templates/view_fence_popup.html #viewWithinAlert", function () {
-        popupTemplate = $('#templateLoader').find('#viewWithinAlert');
+        var popupTemplate = $('#templateLoader').find('#viewWithinAlert');
         popupTemplate.find('#exportGeoJson').attr('leaflet_id', polygon._leaflet_id);
         popupTemplate.find('#hideViewFence').attr('leaflet_id', polygon._leaflet_id);
         popupTemplate.find('#viewAreaName').html(areaName);

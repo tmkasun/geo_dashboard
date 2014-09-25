@@ -203,7 +203,6 @@ function setWithinAlert(leafletId) {
             timeout: 3000,
             pos: 'top-center'
         });
-        map.removeLayer(map._layers[leafletId]);
         closeAll();
         closeWithinTools(leafletId);
     }, 'json');

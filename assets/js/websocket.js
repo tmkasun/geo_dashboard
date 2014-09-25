@@ -205,9 +205,10 @@ function SpatialObject(geoJSON) {
         this.heading = geoJSON.properties.heading;
 
         this.information = geoJSON.properties.information;
-
         if (geoJSON.properties.notify) {
-            notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject(" + this.id + ")'>" + this.id + "</span> change state to: <span style='color: red'>" + geoJSON.properties.state + "</span> Info : " + geoJSON.properties.information);
+            if (this.state != "NORMAL") {
+                notifyAlert("Object ID: <span style='color: blue;cursor: pointer' onclick='focusOnSpatialObject(" + this.id + ")'>" + this.id + "</span> change state to: <span style='color: red'>" + geoJSON.properties.state + "</span> Info : " + geoJSON.properties.information);
+            }
             var newLineStringGeoJson = createLineStringFeature(this.state, this.information, [this.latitude, this.longitude]);
             this.pathGeoJsons.push(newLineStringGeoJson);
 

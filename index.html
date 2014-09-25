@@ -61,11 +61,16 @@
     <!-- UIkit libraries -->
     <script src="assets/js/uikit/uikit.min.js"></script>
     <script src="assets/js/uikit/addons/notify.min.js"></script>
+
     <!-- Self javascript libraries (Order of the import is very important, changing the order might shadow some variables, append new script to bottom ) -->
-    <script src="assets/js/websocket.js"></script>
-    <script src="assets/js/geo_remote.js"></script>
-    <script src="assets/js/geo_fencing.js"></script>
-    <script src="assets/js/show_alert_in_map.js"></script>
+    <!-- ** comment out below imports if using minimized wso2_geo.min library **  -->
+    <!--<script src="assets/js/websocket.js"></script>-->
+    <!--<script src="assets/js/geo_remote.js"></script>-->
+    <!--<script src="assets/js/geo_fencing.js"></script>-->
+    <!--<script src="assets/js/show_alert_in_map.js"></script>-->
+
+    <!-- Combined and compiled JS with google closure compile-->
+    <script src="assets/js/wso2_geo/wso2_geo.min.js"></script>
 
     <style>
         /*
@@ -128,7 +133,7 @@
             <a href="#left_side_pannel" data-uk-offcanvas class="navbar-icon pull-right visible-xs"
                     ><i class="fa fa-bars fa-lg" style="color: #FF9900"></i></a>
             <a href="#" class="navbar-icon pull-right visible-xs"
-               onclick="$('.navbar-collapse').collapse('toggle'); return false;"><i class="fa fa-search fa-lg"
+               onclick="$('.navbar-collapse').collapse('toggle');return false;"><i class="fa fa-search fa-lg"
                                                                                     style="color: #FF9900"></i></a>
         </div>
         <a class="navbar-brand" href="#"><img style="max-width:100px; margin-top: -7px;"
@@ -156,12 +161,7 @@
 
 
     </div>
-    <!--/.navbar-collapse -->
 </nav>
-
-
-
-
 
 <div id="objectInfo" style="background: darkgray;display: none;border-radius: 13px;height: 94%;padding: 0px" class="col-md-2 pull-right" >
     <div class="panel-heading text-center">
@@ -190,20 +190,6 @@
     </div><!--/panel-->
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <div id="left_side_pannel" class="uk-offcanvas" style="z-index: -1;">
     <div class="uk-offcanvas-bar" style="box-shadow: 3px 14px 13px -2px #211404;">
         <ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav>
@@ -224,63 +210,32 @@
                 </ul>
             </li>
 
-            <!-- Place holders need to remove or replace-->
-            <!--<li class="uk-parent">-->
-            <!--<a id="showVehicleHistory" onclick="showVehicleHistory()"><i class="fa fa-calendar"></i> Show-->
-            <!--Vehicle History</a>-->
-
-            <!--<div style="overflow: hidden; height: 0; position: relative;">-->
-            <!--<ul class="uk-nav-sub">-->
-            <!--<li>-->
-            <!--<a href="">Sub item</a>-->
-            <!--</li>-->
-            <!--<li>-->
-            <!--<a href="">Sub item</a>-->
-            <!--<ul>-->
-            <!--<li>-->
-            <!--<a href="">Sub item</a>-->
-            <!--</li>-->
-            <!--<li>-->
-            <!--<a href="">Sub item</a>-->
-            <!--</li>-->
-            <!--</ul>-->
-            <!--</li>-->
-            <!--</ul>-->
-            <!--</div>-->
-            <!--</li>-->
-
-            <!-- Place holders need to remove or replace-->
-            <!--<li>-->
-            <!--&lt;!&ndash; fa fa-tachometer &ndash;&gt;-->
-            <!--<a id="get_administrators" onclick="window.location.href = 'features/displayEngineFuelState.php'"><i-->
-            <!--class="fa fa-signal"></i> Fuel Level</a>-->
-            <!--</li>-->
-
+            <!-- TODO: <for reference> remove if not use -->
             <!-- Choose map display options -->
-            <li class="uk-parent">
-                <a href="#"><i class="fa fa-check-square-o"></i> Display options</a>
-                <ul class="uk-nav-sub">
-                    <li><a style="margin-left: 20%;" ><input id="showPathCheck" type="checkbox" />  <label style="cursor: pointer;" for="showPathCheck">Show path</label></a></li>
-                    <li><a style="margin-left: 20%;" ><i class="fa fa-area-chart"></i>    Show speed graph</a></li>
-                </ul>
-                <script>
-                    // TODO: move this script to proper place <deprecated longer using this because of noodles effect ;) >
-                    $('#showPathCheck').change(function() {
-                        if(this.checked) {
-                            for (spatialObject in currentSpatialObjects) {
-                                currentSpatialObjects[spatialObject].drawPath();
-                                showPathFlag = true;
-                            }
-                        }
-                        else{
-                            for (spatialObject in currentSpatialObjects) {
-                                currentSpatialObjects[spatialObject].removePath();
-                                showPathFlag = false;
-                            }
-                        }
-                    });
-                </script>
-            </li>
+            <!--<li class="uk-parent">-->
+                <!--<a href="#"><i class="fa fa-check-square-o"></i> Display options</a>-->
+                <!--<ul class="uk-nav-sub">-->
+                    <!--<li><a style="margin-left: 20%;" ><input id="showPathCheck" type="checkbox" />  <label style="cursor: pointer;" for="showPathCheck">Show path</label></a></li>-->
+                    <!--<li><a style="margin-left: 20%;" ><i class="fa fa-area-chart"></i>    Show speed graph</a></li>-->
+                <!--</ul>-->
+                <!--<script>-->
+                    <!--// TODO: move this script to proper place <deprecated longer using this because of noodles effect ;) >-->
+                    <!--$('#showPathCheck').change(function() {-->
+                        <!--if(this.checked) {-->
+                            <!--for (spatialObject in currentSpatialObjects) {-->
+                                <!--currentSpatialObjects[spatialObject].drawPath();-->
+                                <!--showPathFlag = true;-->
+                            <!--}-->
+                        <!--}-->
+                        <!--else{-->
+                            <!--for (spatialObject in currentSpatialObjects) {-->
+                                <!--currentSpatialObjects[spatialObject].removePath();-->
+                                <!--showPathFlag = false;-->
+                            <!--}-->
+                        <!--}-->
+                    <!--});-->
+                <!--</script>-->
+            <!--</li>-->
 
             <!-- Alerts section -->
             <li class="uk-nav-header">Alerts</li>
@@ -314,10 +269,11 @@
             <li class="uk-nav-header">
                 System Administrtion
             </li>
-            <!-- Place holders need to remove or replace-->
-            <li class="uk-parent">
-                <a href="site/logs"><i class="fa fa-bar-chart-o"></i> View System Status</a>
-            </li>
+
+            <!-- TODO: <for reference> remove if not use -->
+            <!--<li class="uk-parent">-->
+                <!--<a href="site/logs"><i class="fa fa-bar-chart-o"></i> View System Status</a>-->
+            <!--</li>-->
             <!--<li>-->
             <!--<a href=""><i class="fa fa-users"></i> Manage Users</a>-->
             <!--</li>-->
@@ -408,7 +364,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="last-name">Last Name:</label>
-                                            <input type="text" class="form-control" id="last-email">
+                                            <input id="last-name" type="text" class="form-control" id="last-email">
                                         </div>
                                         <div class="form-group">
                                             <label for="email">Email:</label>
