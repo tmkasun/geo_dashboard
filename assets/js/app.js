@@ -209,6 +209,7 @@ function focusOnSpatialObject(objectId) {
     spatialObject.drawPath();
     setTimeout(function () {
         createChart();
+        chart.load({columns: [spatialObject.speedHistory]});
     }, 100);
 }
 
