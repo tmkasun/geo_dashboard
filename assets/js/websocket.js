@@ -111,6 +111,7 @@ function SpatialObject(geoJSON) {
     this.marker.bindPopup(this.popupTemplate.html());
 
     /* Method definitions */
+    // TODO: Methods should normally be associated to the object's prototype rather than defined into the object constructor https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures#Performance_considerations
     this.addTo = function (map) {
         this.geoJson.addTo(map);
     };
