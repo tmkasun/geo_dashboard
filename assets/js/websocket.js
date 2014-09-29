@@ -64,6 +64,12 @@ var offlineIcon = L.icon({
     iconAnchor: [+12, +12],
     popupAnchor: [-2, -5] //[-3,-76]
 });
+var warningIcon = L.icon({
+    iconUrl: "assets/img/markers/arrow_warning.png",
+    iconSize: [24, 24],
+    iconAnchor: [+12, +12],
+    popupAnchor: [-2, -5] //[-3,-76]
+});
 var defaultIcon = L.icon({
     iconUrl: "assets/img/markers/default_icons/marker-icon.png",
     iconSize: [24, 24],
@@ -133,6 +139,9 @@ function SpatialObject(geoJSON) {
                 break;
             case "OFFLINE":
                 return offlineIcon;
+                break;
+            case "WARNING":
+                return warningIcon;
                 break;
             default:
                 return defaultIcon;

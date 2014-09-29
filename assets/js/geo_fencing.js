@@ -63,21 +63,10 @@ function openWithinTools() {
     // Initialise the FeatureGroup to store editable layers
     var drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
-    var defaultMarker = L.Icon.extend({
-        options: {
-            shadowUrl: 'assets/img/markers/default_icons/marker-shadow.png',
-            iconUrl: 'assets/img/markers/default_icons/marker-icon.png'
-        }
-    });
+
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     drawControl = new L.Control.Draw({
         draw: {
-//            polyline: {
-//                shapeOptions: {
-//                    color: '#f357a1',
-//                    weight: 10
-//                }
-//            }
             polygon: {
                 allowIntersection: false, // Restricts shapes to simple polygons
                 drawError: {
@@ -96,9 +85,6 @@ function openWithinTools() {
             polyline: false,
             circle: false, // Turns off this drawing tool
             marker: false // Markers are not applicable for within geo fencing
-//            marker: {
-//                icon: new defaultMarker()
-//            }
         },
         edit: {
             featureGroup: drawnItems
