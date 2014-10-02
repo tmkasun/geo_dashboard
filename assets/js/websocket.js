@@ -321,7 +321,7 @@ SpatialObject.prototype.update = function (geoJSON) {
 
     if (selectedSpatialObject == this.id) {
         this.updatePath([geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]]);
-        chart.load({columns: [this.speedHistory]});
+        chart.load({columns: [this.speedHistory.getArray()]});
         map.setView([this.latitude, this.longitude]);
     }
 
@@ -364,3 +364,45 @@ function Alert(type, message, level) {
     }
 }
 
+function LocalStorageArray(id) {
+    if (typeof (sessionStorage) === 'undefined') {
+        // Sorry! No Web Storage support..
+        return ['speed']; // TODO: fetch this array from backend DB rather than keeping as in-memory array
+    }
+    if (id === undefined) {
+        throw 'Should provide an id to create a local storage!';
+    }
+    var DELIMITER = ','; // Private variable delimiter
+    this.storageId = id;
+    sessionStorage.setItem(id, 'speed'); // TODO: <note> even tho we use `sessionStorage` because of this line previous it get overwritten in each page refresh
+    this.getArray = function () {
+        return sessionStorage.getItem(this.storageId).split(DELIMITER);
+    };
+
+    this.length = (function (object) {
+        return object.getArray().length;
+    })(this);
+
+    this.push = function (value) {
+        var currentStorageValue = sessionStorage.getItem(this.storageId);
+        var updatedStorageValue;
+        if (currentStorageValue === null) {
+            updatedStorageValue = value;
+        } else {
+            updatedStorageValue = currentStorageValue + DELIMITER + value;
+        }
+        sessionStorage.setItem(this.storageId, updatedStorageValue);
+        this.length +=1;
+    };
+    this.isEmpty = function () {
+        return (this.getArray().length === 0);
+    };
+    this.splice = function (index, howmany) {
+        var currentArray = this.getArray();
+        currentArray.splice(index, howmany);
+        var updatedStorageValue = currentArray.toString();
+        sessionStorage.setItem(this.storageId, updatedStorageValue);
+        this.length -= howmany;
+        // TODO: should return spliced section as array
+    };
+}
