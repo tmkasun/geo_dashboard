@@ -22,7 +22,7 @@ function openWithinTools() {
     $.UIkit.notify({
         message: "Please draw the required area on the map",
         status: 'success',
-        timeout: 3000,
+        timeout: ApplicationOptions.constance.NOTIFY_SUCCESS_TIMEOUT,
         pos: 'top-center'
     });
 
@@ -202,7 +202,6 @@ function updateDrawing(updatedGeoJson) {
     closeAll();
 
 }
-
 
 function viewFence(geoFenceElement) {
     var geoJson = JSON.parse($(geoFenceElement).attr('data-geoJson'));

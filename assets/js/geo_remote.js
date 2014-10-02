@@ -21,11 +21,11 @@
 /* close all opened modals and side pane */
 function addTileUrl() {
     /* TODO: add validation, check for empty url and names*/
-    tileUrl = $('#tileUrl').val();
-    urlName = $('#tileName').val();
-    maxzoom = $('#maxzoom').val();
+    var tileUrl = $('#tileUrl').val();
+    var urlName = $('#tileName').val();
+    var maxzoom = $('#maxzoom').val();
     subdomains = $('#sub_domains').val();
-    attribution = $('#data_attribution').val();
+    var attribution = $('#data_attribution').val();
     /* Add to base layers*/
     var newTileLayer = L.tileLayer(tileUrl, {
         maxZoom: parseInt(maxzoom),
@@ -47,7 +47,7 @@ function addTileUrl() {
 
     /* Do ajax save */
     var data = {
-        'url': tileUrl,
+        url: tileUrl,
         'name': urlName,
         'attribution': attribution,
         'maxzoom': maxzoom,
@@ -59,7 +59,7 @@ function addTileUrl() {
         $.UIkit.notify({
             message: '<span style="color: dodgerblue">' + response + '</span>',
             status: 'success',
-            timeout: 3000,
+            timeout: ApplicationOptions.constance.NOTIFY_SUCCESS_TIMEOUT,
             pos: 'top-center'
         });
         closeAll();
@@ -91,7 +91,7 @@ function getTileServers() {
                 message: 'Loading... <span style="color: #ccfcff">' + val.name + '</span>' +
                     ' URL: <span style="color: #00ff00">' + val.url + '</span>',
                 status: 'info',
-                timeout: 2000,
+                timeout: ApplicationOptions.constance.NOTIFY_INFO_TIMEOUT,
                 pos: 'bottom-left'
             });
             //baseLayers[val.name]
@@ -137,13 +137,14 @@ function addWmsEndPoint() {
         $.UIkit.notify({
             message: '<span style="color: dodgerblue">' + response + '</span>',
             status: 'success',
-            timeout: 3000,
+            timeout: ApplicationOptions.constance.NOTIFY_SUCCESS_TIMEOUT,
             pos: 'top-center'
         });
         closeAll();
     });
 }
 
+// TODO: change meth name to load
 function getWms() {
     // For refference {"wmsServerId" : 1, "serviceUrl" : "http://{s}.somedomain.com/blabla/{z}/{x}/{y}.png", "name" : "Sample server URL", "layers" : "asdsad,sd,adasd,asd", "version" : "1.0.2", "format" : "sadasda/asdas"}
     $.getJSON("controllers/wms_endpoints.jag?serverId=all", function (data) {
@@ -162,7 +163,7 @@ function getWms() {
 
 function setSpeedAlert() {
     var speedAlertValue = $("#speedAlertValue").val();
-    data = {
+    data = { // TODO: change content type to app/json
         'parseData': JSON.stringify({'speedAlertValue': speedAlertValue}), // parseKey : parseValue pair , this key pair is replace with the key in the template file
         'executionPlan': 'speed',
         'customName': null,
@@ -178,7 +179,6 @@ function setSpeedAlert() {
         closeAll();
     }, 'json');
 }
-
 
 function setWithinAlert(leafletId) {
     /*
@@ -228,7 +228,6 @@ function removeGeoFence(geoFenceElement) {
         closeAll();
     }, 'json');
 }
-
 
 function getAlertsHistory(objectId) {
     $.getJSON("controllers/get_alerts_history.jag?objectId=" + objectId, function (data) {

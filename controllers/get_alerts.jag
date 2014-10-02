@@ -32,7 +32,7 @@
                     allFences.push(fence);
                 }
                 catch(e){
-                    print("Error: "+e+'\n');
+                    print("Error: "+e+'\n'); // TODO: use log instead of printing error
                 }
             }
             return allFences;

@@ -9,6 +9,9 @@ var log = new Log();
 log.info("Required the module");
 //Sample create table query create table tileServers (serverId int NOT NULL AUTO_INCREMENT, url varchar(255) NOT NULL, name varchar(255), PRIMARY KEY (serverID));
 var configuration = db.configuration;
+
+// TODO: use master data sources XML
+// TODO: write mysql init table create script
 var db = new Database("jdbc:mysql://"+configuration.server+":3306/"+configuration.db_name, configuration.username, configuration.password);
 //var insertTestData  ="INSERT INTO tileServers (url, name) VALUES('http://{s}.somedomain.com/blabla/{z}/{x}/{y}.png', 'Sample server URL' );";
 
@@ -24,7 +27,7 @@ if(request.getMethod() == "GET"){
                 response.content = allTileServers;
             }
             catch(e){
-                print(e.toString());
+                print(e.toString()); // TODO: use log.info instead of printing error
             }
             finally{
                 db.close();

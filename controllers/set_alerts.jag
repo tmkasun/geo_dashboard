@@ -2,7 +2,7 @@
     /* Includes */
     var escapeXml = require('../include/commons.jag').escapeXml;
     var cepInfo = require('../include/commons.jag').cepInfo;
-    var storeAlerts = require('../include/store_alerts.jag').store;
+    var storeAlerts = require('../include/store_alerts.jag').store; // TODO: change to js
     var ws = require('ws');
 
     var log = new Log();
@@ -13,7 +13,7 @@
     var customName = request.getParameter('customName');
     var cepAction = request.getParameter('cepAction'); // i.e 'deploy' new executionPlan , 'edit' executionPlan and etc..
 
-    var parseData = request.getParameter('parseData');
+    var parseData = request.getParameter('parseData'); // TODO: if app/json use request.getContent()
     var parseDataJson = JSON.parse(parseData);
 
     //log.info(request.getAllParameters("UTF-8")); // To check what parameters we get from the front-end
@@ -23,6 +23,7 @@
         file.open("r");
         var template = "";
         template = file.readAll();
+        file.close(); // TODO: use try catch finally  put close inside finally
 
         for(var parseKey in parseDataJson) {
                 parseValue = parseDataJson[parseKey];
@@ -35,7 +36,7 @@
 
         log.info(updatedTemplate);
         var escapedTemplate = escapeXml(updatedTemplate);
-        file.close();
+
 
         optionalArgs = {"queryName": queryName,"customName": customName};
         // TODO: Inefficient if and else if blocks change it by using general keyword to resourceContents
@@ -50,6 +51,7 @@
         var cep = cepInfo();
 
         // Init ws request
+        // TODO: use cep stub
         var version = new ws.WSRequest();
         var options = new Array();
         options.useSOAP = 1.2;
