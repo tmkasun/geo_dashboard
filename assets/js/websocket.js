@@ -20,7 +20,7 @@ var debugObject; // assign object and debug from browser console, this is for de
 var showPathFlag = false; // Flag to hold the status of draw objects path
 var currentSpatialObjects = {};
 var selectedSpatialObject; // This is set when user search for an object from the search box
-var webSocketURL = 'ws://localhost:9764/outputwebsocket/DefaultWebsocketOutputAdaptor/geoDataEndPoint';
+var webSocketURL = ApplicationOptions.constance.WEB_SOCKET_URL;
 var websocket;
 
 // Make the function wait until the connection is made...
@@ -184,7 +184,7 @@ SpatialObject.prototype.addTo = function (map) {
 SpatialObject.prototype.setSpeed = function (speed) {
     this.speed = speed;
     this.speedHistory.push(speed);
-    console.log("DEBUG: this.speedHistory.length = "+this.speedHistory.length+" ApplicationOptions.constance.SPEED_HISTORY_COUNT = "+ApplicationOptions.constance.SPEED_HISTORY_COUNT);
+//    console.log("DEBUG: this.speedHistory.length = "+this.speedHistory.length+" ApplicationOptions.constance.SPEED_HISTORY_COUNT = "+ApplicationOptions.constance.SPEED_HISTORY_COUNT);
     if (this.speedHistory.length > ApplicationOptions.constance.SPEED_HISTORY_COUNT) {
         this.speedHistory.splice(1, 1);
     }
@@ -379,9 +379,7 @@ function LocalStorageArray(id) {
         return sessionStorage.getItem(this.storageId).split(DELIMITER);
     };
 
-    this.length = (function (object) {
-        return object.getArray().length;
-    })(this);
+    this.length = this.getArray().length;
 
     this.push = function (value) {
         var currentStorageValue = sessionStorage.getItem(this.storageId);

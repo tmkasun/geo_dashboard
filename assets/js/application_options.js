@@ -30,7 +30,7 @@ var ApplicationOptions = {
     },
     constance:{
         SPEED_HISTORY_COUNT: 20,
-
+//        WEB_SOCKET_URL: null,// Need to update when page load according to the login tenant
         NOTIFY_INFO_TIMEOUT: 1000,
         NOTIFY_SUCCESS_TIMEOUT: 1000,
         NOTIFY_WARNING_TIMEOUT: 3000,

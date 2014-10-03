@@ -1,0 +1,10 @@
+<%
+
+var parseData = request.getParameter('parseData'); // TODO: if app/json use request.getContent()
+print(parseData.speedAlertValue);
+//var carbon = require('carbon');
+//user = carbon.server.tenantUser("lklsk@lklk.lk");
+//realmService = carbon.server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+//realm = realmService.getTenantUserRealm();
+//print(realm);
+%>

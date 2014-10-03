@@ -164,12 +164,15 @@ function getWms() {
 function setSpeedAlert() {
     var speedAlertValue = $("#speedAlertValue").val();
     data = { // TODO: change content type to app/json
-        'parseData': JSON.stringify({'speedAlertValue': speedAlertValue}), // parseKey : parseValue pair , this key pair is replace with the key in the template file
+        'parseData': {'speedAlertValue': speedAlertValue}, // parseKey : parseValue pair , this key pair is replace with the key in the template file
         'executionPlan': 'speed',
         'customName': null,
         'cepAction': 'edit' // TODO: what if setting speed alert for the first time ?? that should be a deployment ? try 'edit' if fails 'deploy' , need to handle at the jaggery back end
     };
-    $.post('controllers/set_alerts.jag', data, function (response) {
+    //set_alerts.jag
+    $.post('controllers/test.jag', data, function (response) {
+        console.log("DEBUG:");
+        console.log(response);
         $.UIkit.notify({
             message: '<span style="color: dodgerblue">' + response.status + '</span><br>' + response.message,
             status: (response.status == 'success' ? 'success' : 'danger'),
