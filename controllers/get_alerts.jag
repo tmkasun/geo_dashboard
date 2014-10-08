@@ -15,7 +15,7 @@
     function get(name){
         if(name == 'within'){
             try{
-                var res = dataStore.get("geo/alerts/");
+                var res = dataStore.get("geo/alerts/within/");
             }
             catch(e){
                 log.info(e.message);
@@ -32,16 +32,20 @@
                     allFences.push(fence);
                 }
                 catch(e){
-                    print("Error: "+e+'\n'); // TODO: use log instead of printing error
+                    log.info("Error: "+e+'\n');
                 }
             }
             return allFences;
-        }
-        else if(name == 'speed'){
+        } else if(name == 'speed'){
             var resource = dataStore.get(name+'.json');
             log.info("DEBUG:***** name = "+name);
             log.info("DEBUG:***** resource.content = "+resource.content);
             return JSON.parse(resource.content);
+        } else if(name == 'proximity'){
+                    var resource = dataStore.get("/geo/alerts/proximity/proximity.json");
+                    return {proximityDistance: resource.getProperty("proximityDistance"), proximityTime: resource.getProperty("proximityTime")};
+
+
         }
     }
 

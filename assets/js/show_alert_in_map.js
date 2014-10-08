@@ -17,6 +17,7 @@
  */
 
 function showAlertInMap(alertData) {
+    clearFocus();
 
     var id = $(alertData).attr("data-id");
     var latitude = $(alertData).attr("data-latitude");
@@ -38,8 +39,6 @@ function showAlertInMap(alertData) {
     ).openPopup();
     $(alertOccouredArea._popup._closeButton).on("click",function(){map.removeLayer(alertOccouredArea)});
     map.setView(alertLatLngPoint,18);
-
-    clearFocus();
 
     /* TODO: for reference <Update lib or remove if not in use>: This `R`(RaphaelLayer: https://github.com/dynmeth/RaphaelLayer) library is dam buggy can't use it reliably */
     /*

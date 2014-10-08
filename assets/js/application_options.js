@@ -22,7 +22,7 @@ var ApplicationOptions = {
             WARNING: 'orange',
             OFFLINE: 'grey',
             ALERTED: 'red',
-            UNKNOWN: '#19FFFF'
+            UNKNOWN: 'black' // TODO: previous color #19FFFF , change this if black is not user friendly ;)
         },
         application: {
             header: 'grey'
@@ -47,7 +47,8 @@ var ApplicationOptions = {
             alertedIcon: 'assets/img/markers/arrow_alerted.png',
             offlineIcon: 'assets/img/markers/arrow_offline.png',
             warningIcon: 'assets/img/markers/arrow_warning.png',
-            defaultIcon: 'assets/img/markers/default_icons/marker-icon.png'
+            defaultIcon: 'assets/img/markers/default_icons/marker-icon.png',
+            resizeIcon: 'assets/img/markers/resize.png'
 
         }
     }

@@ -38,13 +38,15 @@
         var escapedTemplate = escapeXml(updatedTemplate);
 
 
-        optionalArgs = {"queryName": queryName,"customName": customName};
+        optionalArgs = {"queryName": queryName,"customName": customName,"executionPlan": executionPlan};
         // TODO: Inefficient if and else if blocks change it by using general keyword to resourceContents
         if(executionPlan == 'within'){
             var resourceContents = parseDataJson.geoFenceGeoJSON;
         }
         else if(executionPlan == 'speed'){
             var resourceContents = parseDataJson.speedAlertValue;
+        } else if(executionPlan == 'proximity'){
+            var resourceContents = parseDataJson
         }
         storeAlerts(parseKey,resourceContents,executionPlan,optionalArgs);
 

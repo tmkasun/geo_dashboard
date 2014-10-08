@@ -164,15 +164,12 @@ function getWms() {
 function setSpeedAlert() {
     var speedAlertValue = $("#speedAlertValue").val();
     data = { // TODO: change content type to app/json
-        'parseData': {'speedAlertValue': speedAlertValue}, // parseKey : parseValue pair , this key pair is replace with the key in the template file
+        'parseData': JSON.stringify({'speedAlertValue': speedAlertValue}), // parseKey : parseValue pair , this key pair is replace with the key in the template file
         'executionPlan': 'speed',
         'customName': null,
         'cepAction': 'edit' // TODO: what if setting speed alert for the first time ?? that should be a deployment ? try 'edit' if fails 'deploy' , need to handle at the jaggery back end
     };
-    //set_alerts.jag
-    $.post('controllers/test.jag', data, function (response) {
-        console.log("DEBUG:");
-        console.log(response);
+    $.post('controllers/set_alerts.jag', data, function (response) {
         $.UIkit.notify({
             message: '<span style="color: dodgerblue">' + response.status + '</span><br>' + response.message,
             status: (response.status == 'success' ? 'success' : 'danger'),
@@ -192,7 +189,7 @@ function setWithinAlert(leafletId) {
     var selectedAreaGeoJson = JSON.stringify(map._layers[leafletId].toGeoJSON().geometry).replace(/"/g, "'");
     var queryName = $("#queryName").val();
     var areaName = $("#areaName").val();
-    data = {
+    var data = {
         'parseData': JSON.stringify({'geoFenceGeoJSON': selectedAreaGeoJson, 'executionPlanName': createExecutionPlanName(queryName), 'areaName': areaName}),
         'executionPlan': 'within',
         'customName': areaName, // TODO: fix , When template copies there can be two queryName and areaName id elements in the DOM
@@ -266,6 +263,26 @@ function getAlertsHistory(objectId) {
             alertsContainer.append(alertDOMElement);
         });
     });
+}
+
+function setProximityAlert() {
+    var proximityDistance = $("#proximityDistance").val();
+    var proximityTime = $("#proximityTime").val();
+    var data = {
+        'parseData': JSON.stringify({'proximityTime': proximityTime, 'proximityDistance': proximityDistance}),
+        'executionPlan': 'proximity',
+        'customName': null,
+        'cepAction': 'edit'
+    };
+    $.post('controllers/set_alerts.jag', data, function (response) {
+        $.UIkit.notify({
+            message: '<span style="color: dodgerblue">' + response.status + '</span><br>' + response.message,
+            status: (response.status == 'success' ? 'success' : 'danger'),
+            timeout: 3000,
+            pos: 'top-center'
+        });
+        closeAll();
+    }, 'json');
 }
 
 // TODO:this is not a remote call , move this to application.js

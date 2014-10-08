@@ -227,6 +227,8 @@ SpatialObject.prototype.drawPath = function () {
         console.log("DEBUG: previousSectionLastPoint = " + previousSectionLastPoint + " currentSectionFirstPoint = " + currentSectionFirstPoint);
         previousSectionLastPoint.push(currentSectionFirstPoint);
         var sectionJoin = new L.polyline(previousSectionLastPoint, this.getSectionStyles());
+        sectionJoin.setStyle({className: "sectionJointStyle"});// Make doted line for section join , this class is currently defined in map.jag as a inner css
+
         previousSectionLastPoint = [this.pathGeoJsons[lineString].geometry.coordinates[this.pathGeoJsons[lineString].geometry.coordinates.length - 1]];
         sectionJoin.addTo(map);
         this.path.push(sectionJoin);
@@ -293,6 +295,7 @@ SpatialObject.prototype.update = function (geoJSON) {
             var lastSection = this.path[this.path.length - 1].getLatLngs();
             var joinLine = [lastSection[lastSection.length - 1], [this.latitude, this.longitude]];
             var sectionJoin = new L.polyline(joinLine, this.getSectionStyles());
+            sectionJoin.setStyle({className: "sectionJointStyle"});// Make doted line for section join , this class is currently defined in map.jag as a inner css
 
             this.path.push(sectionJoin);
             this.path.push(newPathSection); // Order of the push matters , last polyLine object should be the `newPathSection` not the `sectionJoin`
