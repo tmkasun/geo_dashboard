@@ -717,10 +717,10 @@ var user = session.get("user");
 
 
 <!-- ** comment out below library if using minimized wso2_geo_app.min library **  -->
-<!--<script src="assets/js/app.js"></script>-->
+<script src="assets/js/app.js"></script>
 
 <!-- Combined and compiled JS with google closure compile-->
-<script src="assets/js/wso2_geo/wso2_geo_app.min.js"></script>
+<!--<script src="assets/js/wso2_geo/wso2_geo_app.min.js"></script>-->
 
 <!-- Template HTML components used by JS to inject contents-->
 <div style="display: none">
