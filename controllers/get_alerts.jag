@@ -1,11 +1,11 @@
 <%
+var log = new Log();
     var dataStore = require('../include/commons.jag').dataStore;
 	var verb = request.getMethod();
     var resourceName = request.getParameter('name');
     var webService = request.getParameter('service');
 
-    var log = new Log();
-
+log.info(webService);
     if(webService) {
             response.contentType = 'application/json';
             response.characterEncoding = 'UTF-8';
@@ -37,15 +37,26 @@
             }
             return allFences;
         } else if(name == 'speed'){
-            var resource = dataStore.get(name+'.json');
+
+            var resource;
+            try{
+                resource = dataStore.get(name+'.json');
+            }catch(e){
+                resource = {'content': false};
+            }
             log.info("DEBUG:***** name = "+name);
             log.info("DEBUG:***** resource.content = "+resource.content);
             return JSON.parse(resource.content);
         } else if(name == 'proximity'){
-                    var resource = dataStore.get("/geo/alerts/proximity/proximity.json");
-                    return {proximityDistance: resource.getProperty("proximityDistance"), proximityTime: resource.getProperty("proximityTime")};
 
-
+            var result;
+            try{
+                var resource = dataStore.get("/geo/alerts/proximity/proximity.json");
+                result={proximityDistance: resource.getProperty("proximityDistance"), proximityTime: resource.getProperty("proximityTime")};
+            }catch(e){
+                result = {'content': false};
+            }
+            return result;
         }
     }
 
