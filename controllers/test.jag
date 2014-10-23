@@ -1,4 +1,10 @@
 <%
+
+ //This controller is for testing purpose only ,
+ //You may use this for check the log files,
+ //please make sure that no other controller or file make dependence on this controller
+ //this controller is ONLY FOR TESTING PURPOSE!!!!
+
 var log = new Log();
 //var parseData = request.getParameter('parseData'); // TODO: if app/json use request.getContent()
 //var all = request.getAllParameters();

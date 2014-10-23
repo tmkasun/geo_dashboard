@@ -24,7 +24,7 @@
         }
         else if(executionPlan == "within"){
             try{
-                var res = dataStore.get("geo/alerts");
+                var res = dataStore.get("geo/alerts/within");
             }
             catch(e){
                 var geo = dataStore.newCollection();
@@ -67,9 +67,8 @@
     }
 
     function remove(queryName) {
-        log.info("DEBUG: queryName = "+queryName);
         try{
-            var path = "geo/alerts/within"+queryName+".json"; // TODO:  remove within hardcoded value
+            var path = "geo/alerts/within/"+queryName+".json"; // TODO:  remove within hardcoded value
             log.info("DEBUG: path = "+path);
             dataStore.remove(path);
             }
