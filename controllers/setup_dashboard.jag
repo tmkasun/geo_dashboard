@@ -1,9 +1,37 @@
 <%
 
 var log = new Log();
-log.info(request.getAllParameters("UTF-8"));
+
+var postData = request.getAllParameters("UTF-8");
+
+log.info(postData);
 response.contentType = 'application/json';
 response.characterEncoding = 'UTF-8';
 response.content = true;
+
+// For reference postData: {"cep-port" : "9443", "mysql-db" : "db_name_value", "mysql-pass" : "password_value",
+//                         "mysql-ip" : "192.168.0.10", "cep-ip" : "192.168.0.1"}
+
+var cep_info = new File('../conf/cep_info.json');
+var data = {
+    server: postData['cep-ip'].trim() || "localhost",
+    port: postData['cep-port'].trim() || "9443",
+    username: 'admin', // TODO: storing username and password will be remove when the mutual authentication is implement
+    password: 'admin'
+};
+cep_info.open("w");
+cep_info.write(data);
+cep_info.close();
+
+var db_info = new File('../conf/database.json');
+var data = {
+    server: postData['mysql-ip'].trim() || "localhost",
+    username: postData['mysql-user'].trim() || "root",
+    password: postData['mysql-pass'].trim() || "root",
+    db_name: postData['mysql-db'].trim() || "wso2_geo"
+};
+db_info.open("w");
+db_info.write(data);
+db_info.close();
 
 %>

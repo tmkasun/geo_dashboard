@@ -1,6 +1,1 @@
-{
-    "server": "localhost",
-    "username": "root",
-    "password": "kasun123",
-    "db_name": "wso2_geo"
-}
+{"server" : "localhost", "username" : "root", "password" : "root", "db_name" : "wso2_geo"}

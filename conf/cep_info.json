@@ -1,6 +1,1 @@
-{
-    "server": "localhost",
-    "username": "admin",
-    "password": "admin",
-    "port": "9444"
-}
+{"server" : "localhost", "port" : "9444", "username" : "admin", "password" : "admin"}
