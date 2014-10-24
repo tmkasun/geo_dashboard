@@ -177,7 +177,7 @@
             </div>
             <hr/>
             <p class="text-muted"><a href="conf/setup_dashboard/mysql-config/mysql-config.zip">Download</a> MySql
-                Configuration and run <b>geo_db_setup.sh</b> with <i>sudo</i> privilages.(Get <a href="http://dev.mysql.com/downloads/connector/j/">JDBC Driver</a> if required.)</p>
+                Configuration and run <b>geo_db_setup.sh</b> with <i>sudo</i> privilages.(Get <a target="_blank" href="http://dev.mysql.com/downloads/connector/j/">JDBC Driver</a> if required.)</p>
         </form>
 
     </div>

@@ -6,6 +6,8 @@
  //this controller is ONLY FOR TESTING PURPOSE!!!!
 
 var log = new Log();
+var config = require('../conf/cep_info.json');
+log.info(config);
 //var parseData = request.getParameter('parseData'); // TODO: if app/json use request.getContent()
 //var all = request.getAllParameters();
 //log.info(all);
@@ -16,13 +18,13 @@ var log = new Log();
 //realm = realmService.getTenantUserRealm();
 //print(realm);
 
-var dataStore = require('../include/commons.jag').dataStore;
-var res = dataStore.get("geo/alerts/proximity/");
-print(res);
+//var dataStore = require('../include/commons.jag').dataStore;
+//var res = dataStore.get("geo/alerts/proximity/");
+//print(res);
 
-for each (var resource in res.getChildren()) {
+//for each (var resource in res.getChildren()) {
 
-                log.info(resource);
-                }
+  //              log.info(resource);
+    //            }
 
 %>
