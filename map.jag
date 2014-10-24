@@ -801,6 +801,15 @@ var user = session.get("user");
 
     <h1><i class="fa fa-cogs"></i> Setup Geo-Dashboard</h1>
 
+        <div class="wizard-card" data-cardname="about">
+            <h3>About</h3>
+            <div style="word-wrap: break-word">
+                 <p class="text-info">
+This wizard will guide you to configure and setup Wso2 complex event processor and database systems to work with geo-dashboard.
+                </p>
+            </div>
+        </div>
+
     <div class="wizard-card" data-cardname="CEP info">
         <h3><sup style="color: red;">*</sup>CEP info</h3>
 
