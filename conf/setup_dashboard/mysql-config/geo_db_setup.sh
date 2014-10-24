@@ -19,7 +19,7 @@ usage() {
 	echo "    -p <password> User password to access database server."
 	echo "    -h <host>     Data Base Server address (default: localhost)."
 	echo "    -r <port>     Data Base Server Port (default: 3306)"
-	echo "    -n <dbname>  Data Base Name for the geonames.org data (default: wso2_geo)"
+	echo "    -n <dbname>  Data Base Name for the wso2 Geo-Dashboard data (default: wso2_geo)"
 	echo "================================================================================================"
     exit -1
 }
@@ -70,7 +70,7 @@ mysql -h $dbhost -P $dbport -u $dbusername -p$dbpassword -Bse "USE $dbname;"
 mysql -h $dbhost -P $dbport -u $dbusername -p$dbpassword $dbname < $dir/geo_dashboard_db_struct.sql
 
 
-if [ $? == 0 ]; then 
+if [ $? == 0 ]; then
 	echo "[OK]"
 else
 	echo "[FAILED]"

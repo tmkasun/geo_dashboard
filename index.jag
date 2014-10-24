@@ -204,7 +204,7 @@
 
 
     <div class="wizard-card" data-cardname="CEP Ext's">
-        <h3>CEP Ext's</h3>
+        <h3>CEP Extensions</h3>
         <div style="word-wrap: break-word">
             <p>
                 <a href="https://github.com/wso2-gpl/siddhi/tree/master/siddhi-extensions/geo">Get (Clone)</a> a copy of siddhi geo extensions from github and build the necessary extensions and put <i>.jar(s)</i>> into
