@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<outputEventAdaptor name="DefaultWebsocketOutputAdaptor"
+  statistics="enable" trace="enable" type="websocket-local" xmlns="http://wso2.org/carbon/eventadaptormanager"/>

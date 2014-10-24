@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<executionPlan name="eventsFunionGenerateNotofications"
+  statistics="enable" trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
+  <description>Fuse multiple events into one event and notify to user if a state has change from the previous value</description>
+  <siddhiConfiguration>
+    <property name="siddhi.persistence.snapshot.time.interval.minutes">0</property>
+    <property name="siddhi.enable.distributed.processing">false</property>
+  </siddhiConfiguration>
+  <importedStreams>
+    <stream as="dataIn" name="processedSpatialEvents" version="1.0.0"/>
+  </importedStreams>
+  <queryExpressions><![CDATA[from dataIn#window.geo:eventsFunion(eventId) 
+insert into innerStream;
+
+from innerStream
+select id, latitude, longitude, timeStamp, speed, heading, state , information, geo:needToNotify(id,information) as notify
+insert into dataOut;
+
+from dataOut[notify == true]
+select id,state,information,timeStamp, latitude, longitude
+insert into alertsOut;
+        ]]></queryExpressions>
+  <exportedStreams>
+    <stream name="AlertsNotifications" valueOf="alertsOut" version="1.0.0"/>
+    <stream name="fusedSpatialEvent" valueOf="dataOut" version="1.0.0"/>
+  </exportedStreams>
+</executionPlan>

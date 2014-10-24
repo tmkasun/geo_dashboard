@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<executionPlan name="geo_within_Akuregoda_alert" statistics="enable"
+  trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
+  <description/>
+  <siddhiConfiguration>
+    <property name="siddhi.persistence.snapshot.time.interval.minutes">0</property>
+    <property name="siddhi.enable.distributed.processing">false</property>
+  </siddhiConfiguration>
+  <importedStreams>
+    <stream as="dataIn" name="standardSpatialEvents" version="1.0.0"/>
+  </importedStreams>
+  <queryExpressions>from dataIn[geo:iswithin(longitude,latitude,"{'type':'Polygon','coordinates':[[[79.9320602416992,6.878369189928266],[79.9148941040039,6.894729791048567],[79.92382049560545,6.911430655357409],[79.95574951171875,6.912793965187959],[79.96261596679686,6.89984236311519],[79.96330261230467,6.879391744022743],[79.9320602416992,6.878369189928266]]]}")==true]#transform.geo:subscribeExecutionPlan()
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "ALERTED" as state, "This vehicle is in Akuregoda1 restricted area!!!" as information
+insert into dataOut;
+from dataIn[geo:iswithin(longitude,latitude,"{'type':'Polygon','coordinates':[[[79.9320602416992,6.878369189928266],[79.9148941040039,6.894729791048567],[79.92382049560545,6.911430655357409],[79.95574951171875,6.912793965187959],[79.96261596679686,6.89984236311519],[79.96330261230467,6.879391744022743],[79.9320602416992,6.878369189928266]]]}")!=true]
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "NORMAL" as state, "" as information
+insert into dataOut;</queryExpressions>
+  <exportedStreams>
+    <stream name="processedSpatialEvents" valueOf="dataOut" version="1.0.0"/>
+  </exportedStreams>
+</executionPlan>

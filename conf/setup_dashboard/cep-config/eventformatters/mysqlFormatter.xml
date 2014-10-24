@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eventFormatter name="mysqlFormatter" statistics="enable" trace="enable" xmlns="http://wso2.org/carbon/eventformatter">
+  <from streamName="AlertsNotifications" version="1.0.0"/>
+  <mapping customMapping="enable" type="map">
+    <property>
+      <from name="id"/>
+      <to name="id"/>
+    </property>
+    <property>
+      <from name="state"/>
+      <to name="state"/>
+    </property>
+    <property>
+      <from name="information"/>
+      <to name="information"/>
+    </property>
+    <property>
+      <from name="timeStamp"/>
+      <to name="timeStamp"/>
+    </property>
+    <property>
+      <from name="longitude"/>
+      <to name="longitude"/>
+    </property>
+    <property>
+      <from name="latitude"/>
+      <to name="latitude"/>
+    </property>
+  </mapping>
+  <to eventAdaptorName="DefaultMysqlOutputAdaptor" eventAdaptorType="mysql">
+    <property name="table.name">alerts_history</property>
+    <property name="update.keys"/>
+    <property name="execution.mode">insert</property>
+  </to>
+</eventFormatter>

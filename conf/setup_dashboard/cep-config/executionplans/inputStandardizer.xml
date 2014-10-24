@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<executionPlan name="inputStandardizer" statistics="enable"
+  trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
+  <description/>
+  <siddhiConfiguration>
+    <property name="siddhi.persistence.snapshot.time.interval.minutes">0</property>
+    <property name="siddhi.enable.distributed.processing">false</property>
+  </siddhiConfiguration>
+  <importedStreams>
+    <stream as="dataIn" name="rawInputStream" version="1.0.0"/>
+  </importedStreams>
+  <queryExpressions><![CDATA[from dataIn
+select id, latitude, longitude, timeStamp, speed, heading, geo:generateEventId() as eventId
+insert into dataOut]]></queryExpressions>
+  <exportedStreams>
+    <stream name="standardSpatialEvents" valueOf="dataOut" version="1.0.0"/>
+  </exportedStreams>
+</executionPlan>

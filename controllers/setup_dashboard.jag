@@ -1,0 +1,9 @@
+<%
+
+var log = new Log();
+log.info(request.getAllParameters("UTF-8"));
+response.contentType = 'application/json';
+response.characterEncoding = 'UTF-8';
+response.content = true;
+
+%>

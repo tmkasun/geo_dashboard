@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<executionPlan name="geo_within_Colombo_alert" statistics="enable"
+  trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
+  <description/>
+  <siddhiConfiguration>
+    <property name="siddhi.persistence.snapshot.time.interval.minutes">0</property>
+    <property name="siddhi.enable.distributed.processing">false</property>
+  </siddhiConfiguration>
+  <importedStreams>
+    <stream as="dataIn" name="standardSpatialEvents" version="1.0.0"/>
+  </importedStreams>
+  <queryExpressions>from dataIn[geo:iswithin(longitude,latitude,"{'type':'Polygon','coordinates':[[[79.85206604003906,6.928982968564734],[79.85584259033203,6.943467395179309],[79.86974716186523,6.941592965070489],[79.88245010375977,6.92506357659203],[79.87335205078125,6.919440044277738],[79.85206604003906,6.928982968564734]]]}")==true]#transform.geo:subscribeExecutionPlan()
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "ALERTED" as state, "This vehicle is in Fence1 restricted area!!!" as information
+insert into dataOut;
+from dataIn[geo:iswithin(longitude,latitude,"{'type':'Polygon','coordinates':[[[79.85206604003906,6.928982968564734],[79.85584259033203,6.943467395179309],[79.86974716186523,6.941592965070489],[79.88245010375977,6.92506357659203],[79.87335205078125,6.919440044277738],[79.85206604003906,6.928982968564734]]]}")!=true]
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "NORMAL" as state, "" as information
+insert into dataOut;</queryExpressions>
+  <exportedStreams>
+    <stream name="processedSpatialEvents" valueOf="dataOut" version="1.0.0"/>
+  </exportedStreams>
+</executionPlan>

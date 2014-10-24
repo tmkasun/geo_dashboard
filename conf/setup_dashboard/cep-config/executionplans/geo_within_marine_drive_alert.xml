@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<executionPlan name="geo_within_marine_drive_alert" statistics="enable"
+  trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
+  <description/>
+  <siddhiConfiguration>
+    <property name="siddhi.persistence.snapshot.time.interval.minutes">0</property>
+    <property name="siddhi.enable.distributed.processing">false</property>
+  </siddhiConfiguration>
+  <importedStreams>
+    <stream as="dataIn" name="standardSpatialEvents" version="1.0.0"/>
+  </importedStreams>
+  <queryExpressions>from dataIn[geo:iswithin(longitude,latitude,"{'type':'Polygon','coordinates':[[[79.85635757446289,6.878880467250712],[79.84176635742188,6.931027855791152],[79.84502792358398,6.931879889517218],[79.86202239990233,6.875471941373295],[79.86425399780273,6.868313957458993],[79.85893249511719,6.867973098394459],[79.85635757446289,6.878880467250712]]]}")==true]#transform.geo:subscribeExecutionPlan()
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "ALERTED" as state, "This vehicle is in marine_drive1 restricted area!!!" as information
+insert into dataOut;
+from dataIn[geo:iswithin(longitude,latitude,"{'type':'Polygon','coordinates':[[[79.85635757446289,6.878880467250712],[79.84176635742188,6.931027855791152],[79.84502792358398,6.931879889517218],[79.86202239990233,6.875471941373295],[79.86425399780273,6.868313957458993],[79.85893249511719,6.867973098394459],[79.85635757446289,6.878880467250712]]]}")!=true]
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "NORMAL" as state, "" as information
+insert into dataOut;</queryExpressions>
+  <exportedStreams>
+    <stream name="processedSpatialEvents" valueOf="dataOut" version="1.0.0"/>
+  </exportedStreams>
+</executionPlan>

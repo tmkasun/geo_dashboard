@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<executionPlan name="geo_within_Havlock_town_alert" statistics="enable"
+  trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
+  <description/>
+  <siddhiConfiguration>
+    <property name="siddhi.persistence.snapshot.time.interval.minutes">0</property>
+    <property name="siddhi.enable.distributed.processing">false</property>
+  </siddhiConfiguration>
+  <importedStreams>
+    <stream as="dataIn" name="standardSpatialEvents" version="1.0.0"/>
+  </importedStreams>
+  <queryExpressions>from dataIn[geo:iswithin(longitude,latitude,"{'type':'Polygon','coordinates':[[[79.8676872253418,6.889276320041728],[79.85858917236328,6.899671944935481],[79.86236572265625,6.909556097920147],[79.87661361694336,6.909896927097974],[79.88004684448242,6.902057793869],[79.88056182861328,6.894218530807201],[79.87232208251953,6.891150957776738],[79.8676872253418,6.889276320041728]]]}")==true]#transform.geo:subscribeExecutionPlan()
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "ALERTED" as state, "This vehicle is in Havlock_town1 restricted area!!!" as information
+insert into dataOut;
+from dataIn[geo:iswithin(longitude,latitude,"{'type':'Polygon','coordinates':[[[79.8676872253418,6.889276320041728],[79.85858917236328,6.899671944935481],[79.86236572265625,6.909556097920147],[79.87661361694336,6.909896927097974],[79.88004684448242,6.902057793869],[79.88056182861328,6.894218530807201],[79.87232208251953,6.891150957776738],[79.8676872253418,6.889276320041728]]]}")!=true]
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "NORMAL" as state, "" as information
+insert into dataOut;</queryExpressions>
+  <exportedStreams>
+    <stream name="processedSpatialEvents" valueOf="dataOut" version="1.0.0"/>
+  </exportedStreams>
+</executionPlan>

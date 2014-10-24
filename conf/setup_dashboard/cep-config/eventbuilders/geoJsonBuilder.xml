@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eventBuilder name="geoJsonBuilder" statistics="enable" trace="enable" xmlns="http://wso2.org/carbon/eventbuilder">
+    <from eventAdaptorName="GpsDataOverHttp" eventAdaptorType="http">
+        <property name="topic">geoJson</property>
+    </from>
+    <mapping customMapping="enable" type="json">
+        <property>
+            <from jsonPath="$.id"/>
+            <to default="0.0" name="id" type="string"/>
+        </property>
+        <property>
+            <from jsonPath="$.properties.timeStamp"/>
+            <to name="timeStamp" type="string"/>
+        </property>
+        <property>
+            <from jsonPath="$.geometry.coordinates[1]"/>
+            <to name="latitude" type="double"/>
+        </property>
+        <property>
+            <from jsonPath="$.geometry.coordinates[0]"/>
+            <to name="longitude" type="double"/>
+        </property>
+        <property>
+            <from jsonPath="$.properties.speed"/>
+            <to name="speed" type="float"/>
+        </property>
+        <property>
+            <from jsonPath="$.properties.heading"/>
+            <to name="heading" type="float"/>
+        </property>
+    </mapping>
+    <to streamName="rawInputStream" version="1.0.0"/>
+</eventBuilder>

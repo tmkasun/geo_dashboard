@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eventFormatter name="geoJsonFormatter" statistics="enable"
+  trace="enable" xmlns="http://wso2.org/carbon/eventformatter">
+  <from streamName="fusedSpatialEvent" version="1.0.0"/>
+  <mapping customMapping="enable" type="json">
+    <inline>
+    {
+  "type": "Feature",
+  "id": "{{id}}",
+  "properties": {
+        "speed": {{speed}},
+        "heading": {{heading}},
+        "state": "{{state}}",
+        "information": "{{information}}",
+        "notify": {{notify}}
+      },
+  "geometry": {
+        "type": "Point",
+        "coordinates": [{{longitude}},{{latitude}}]
+      }
+}
+    </inline>
+  </mapping>
+  <to eventAdaptorName="DefaultWebsocketOutputAdaptor" eventAdaptorType="websocket-local">
+    <property name="websocket.topic">geoDataEndPoint</property>
+  </to>
+</eventFormatter>
