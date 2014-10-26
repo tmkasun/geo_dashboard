@@ -86,9 +86,9 @@ var user = session.get("user");
     <!-- ** comment out below imports if using minimized wso2_geo.min library **  -->
     <script src="assets/js/application_options.js"></script>
     <script>
-        var webSocketURL = 'ws://localhost:9764/outputwebsocket/t/' + '<%= user.domain %>' + '/DefaultWebsocketOutputAdaptor/geoDataEndPoint'; // TODO: Get the server IP and port and other static information from the applicationOptions object
-        ApplicationOptions.constance.WEB_SOCKET_URL = webSocketURL;//'ws://localhost:9764/outputwebsocket/t/'+ 'carbon.super' +'/DefaultWebsocketOutputAdaptor/geoDataEndPoint';
-        //console.log("DEBUG: "+webSocketURL);
+        var webSocketURL = 'ws://'+ApplicationOptions.constance.WEB_SOCKET_SERVER+':'+ApplicationOptions.constance.WEB_SOCKET_PORT+'/outputwebsocket/t/' + '<%= user.domain %>' + '/'+ApplicationOptions.constance.CEP_WEB_SOCKET_OUTPUT_ADAPTOR_NAME+'/'+ApplicationOptions.constance.CEP_WEB_SOCKET_BUILDER_TOPIC; // TODO: Get the server IP and port and other static information from the applicationOptions object
+        console.log(webSocketURL);
+        ApplicationOptions.constance.WEB_SOCKET_URL = webSocketURL;
     </script>
     <script src="assets/js/websocket.js"></script>
     <script src="assets/js/geo_remote.js"></script>
