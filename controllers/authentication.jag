@@ -1,6 +1,7 @@
 <%
-
-var url = 'https://localhost:9444/admin/services/';
+var cepInfo = require('../include/commons.jag').cepInfo;
+var cep = cepInfo();
+var url = 'https://'+cep.server+':'+cep.port;
 
 var username = request.getParameter("username");
 var password = request.getParameter("password");
@@ -10,8 +11,13 @@ var server = new carbon.server.Server(url);
 var authentication = server.authenticate(username,password);
 
 if(authentication){
+    var server = new carbon.server.Server({url: url});
+    var cookie = server.login(username,password);
+
     var authorizedUser =  carbon.server.tenantUser(username);
     session.put("user", authorizedUser);
+    session.put(authorizedUser.tenantId.toString(), cookie);
+
     response.sendRedirect("../map.jag");
 } else{
     session.put("error", "User "+username+" Login failed! Please recheck the username and password and try again.");

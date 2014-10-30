@@ -54,8 +54,12 @@
 
         // Init ws request
         // TODO: use cep stub
-        var version = new ws.WSRequest();
-        var options = new Array();
+        var client = new ws.WSRequest();
+        var currentUserTenantId = session.get("user").tenantId;
+        var cookieObject = session.get(currentUserTenantId.toString());
+        var options = {HTTPHeaders: [
+                               { name: 'Cookie', value: cookieObject.cookie }
+                           ]};
         options.useSOAP = 1.2;
         options.useWSA = 1.0;
         var payload;
@@ -84,14 +88,12 @@
         }
 
         var result;
-        //log.info(("DEBUG: payload "+payload);
-        //log.info("DEBUG: cepAction = "+cepAction+" options = "+options);
 
         var responseJson = { "status" :"" , "message" : ""};
         try {
-            version.open(options, "https://"+cep.server+":"+cep.port+"/services/EventProcessorAdminService.EventProcessorAdminServiceHttpsSoap12Endpoint/", false, cep.username, cep.password);
-            version.send(payload);
-            result = version.responseE4X;
+            client.open(options, "https://"+cep.server+":"+cep.port+"/services/EventProcessorAdminService.EventProcessorAdminServiceHttpsSoap12Endpoint/", false);
+            client.send(payload);
+            result = client.responseE4X;
             responseJson.status = "success";
             responseJson.message = "Query deployed successfully";
         } catch (e) {
