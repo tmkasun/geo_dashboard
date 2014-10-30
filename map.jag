@@ -940,7 +940,7 @@ This wizard will guide you to configure and setup Wso2 complex event processor a
             Object].(/geo_dashboard/controllers/authentication.jag#13)
         </div>
         Copy <a href="https://github.com/wso2/jaggery-extensions/tree/master/carbon/module/scripts/server">this </a>directory
-        to your local<br/><b><i>{path_to_cep}/modules/carbon/scripts/server/</i></b> directory in Jaggery server.
+        to your local<br/><b><i>{path_to_jaggery_server}/modules/carbon/scripts/server/</i></b> directory in Jaggery server.
     </div>
 
     <!-- begin special status cards below: -->
