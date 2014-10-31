@@ -63,7 +63,30 @@
             resource.addProperty("proximityTime", resourceContents.proximityTime);
             dataStore.put(String("geo/alerts/proximity/"+optional.executionPlan+".json"), resource);
 
+        } else if(executionPlan == "stationery"){
+
+            try{
+                var res = dataStore.get("geo/alerts/stationery");
+            }
+            catch(e){
+                var geo = dataStore.newCollection();
+                var alerts = dataStore.newCollection();
+                var stationery = dataStore.newCollection();
+
+                dataStore.put("geo", geo);
+                dataStore.put("alerts", alerts);
+                dataStore.put("stationery", stationery);
+            }
+            log.info("DEBUG:****** resourceContents = "+resourceContents.geoFenceGeoJSON);
+            var resource = dataStore.newResource();
+            resource.addProperty("queryName", optional.queryName);
+            resource.addProperty("stationeryName", optional.customName);
+            resource.addProperty("stationeryTime", resourceContents.stationeryTime);
+            resource.content = String(resourceContents.geoFenceGeoJSON);
+            dataStore.put(String("geo/alerts/stationery/"+optional.queryName+".json"), resource);
+
         }
+
     }
 
     function remove(queryName) {

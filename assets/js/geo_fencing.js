@@ -17,7 +17,7 @@
  */
 
 var drawControl;
-function openWithinTools() {
+function openTools(id) {
     closeAll();
     $.UIkit.notify({
         message: "Please draw the required area on the map",
@@ -64,32 +64,67 @@ function openWithinTools() {
     var drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
 
-    // Initialise the draw control and pass it the FeatureGroup of editable layers
-    drawControl = new L.Control.Draw({
-        draw: {
-            polygon: {
-                allowIntersection: false, // Restricts shapes to simple polygons
-                drawError: {
-                    color: '#e1e100', // Color the shape will turn when intersects
-                    message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+    if(id=="WithIn"){
+        // Initialise the draw control and pass it the FeatureGroup of editable layers
+        drawControl = new L.Control.Draw({
+            draw: {
+                polygon: {
+                    allowIntersection: false, // Restricts shapes to simple polygons
+                    drawError: {
+                        color: '#e1e100', // Color the shape will turn when intersects
+                        message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+                    },
+                    shapeOptions: {
+                        color: '#ff0043'
+                    }
                 },
-                shapeOptions: {
-                    color: '#ff0043'
-                }
+                rectangle: {
+                    shapeOptions: {
+                        color: '#002bff'
+                    }
+                },
+                polyline: false,
+                circle: false, // Turns off this drawing tool
+                marker: false // Markers are not applicable for within geo fencing
             },
-            rectangle: {
-                shapeOptions: {
-                    color: '#002bff'
-                }
+            edit: {
+                featureGroup: drawnItems
+            }
+        });
+    } else if(id=="Stationery"){
+        // Initialise the draw control and pass it the FeatureGroup of editable layers
+
+        drawControl = new L.Control.Draw({
+            draw: {
+                polygon: {
+                    allowIntersection: false, // Restricts shapes to simple polygons
+                    drawError: {
+                        color: '#e1e100', // Color the shape will turn when intersects
+                        message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+                    },
+                    shapeOptions: {
+                        color: '#ff0043'
+                    }
+                },
+                rectangle: {
+                    shapeOptions: {
+                        color: '#002bff'
+                    }
+                },
+                polyline: false,
+                circle: {
+                    shapeOptions: {
+                        color: '#ff0043'
+                    }
+                },
+                marker: false // Markers are not applicable for within geo fencing
             },
-            polyline: false,
-            circle: false, // Turns off this drawing tool
-            marker: false // Markers are not applicable for within geo fencing
-        },
-        edit: {
-            featureGroup: drawnItems
-        }
-    });
+            edit: {
+                featureGroup: drawnItems
+            }
+        });
+    }
+
     map.addControl(drawControl);
 
     map.on('draw:created', function (e) {
@@ -101,26 +136,32 @@ function openWithinTools() {
         }*/
 
         drawnItems.addLayer(layer);
-        createPopup(layer);
+        createPopup(layer,id);
 
     });
 
 }
 
-function createPopup(layer) {
-    var popupTemplate = $('#setWithinAlert');
+function createPopup(layer,id) {
+    if(id=="WithIn"){
+        var popupTemplate = $('#setWithinAlert');
+        popupTemplate.find('#addWithinAlert').attr('leaflet_id', layer._leaflet_id);
+    } else if(id=="Stationery"){
+        var popupTemplate = $('#setStationeryAlert');
+        popupTemplate.find('#addStationeryAlert').attr('leaflet_id', layer._leaflet_id);
+    }
     popupTemplate.find('#exportGeoJson').attr('leaflet_id', layer._leaflet_id);
     popupTemplate.find('#editGeoJson').attr('leaflet_id', layer._leaflet_id);
-    popupTemplate.find('#addWithinAlert').attr('leaflet_id', layer._leaflet_id);
+
     layer.bindPopup(popupTemplate.html(), {closeOnClick: false, closeButton: false}).openPopup();
     // transparent the layer .leaflet-popup-content-wrapper
     $(layer._popup._container.childNodes[0]).css("background", "rgba(255,255,255,0.8)");
 }
 
-function closeWithinTools(leafletId) {
+function closeTools(leafletId) {
     map.removeLayer(map._layers[leafletId]);
     map.removeControl(drawControl);
-    console.log("DEBUG: closeWithinTools(leafletId) = "+leafletId);
+    console.log("DEBUG: closeTools(leafletId) = "+leafletId);
 }
 
 /* Export selected area on the map as a json encoded geoJson standard file, no back-end calls simple HTML5 trick ;) */
@@ -203,30 +244,67 @@ function updateDrawing(updatedGeoJson) {
 
 }
 
-function viewFence(geoFenceElement) {
+function viewFence(geoFenceElement,id) {
     var geoJson = JSON.parse($(geoFenceElement).attr('data-geoJson'));
     var queryName = $(geoFenceElement).attr('data-queryName');
     var areaName = $(geoFenceElement).attr('data-areaName');
+    var geometryShape;
 
-    geoJson.coordinates[0].pop(); // popout the last coordinate set(lat,lng pair) due to circular chain
-    var leafletLatLngs = [];
-    $.each(geoJson.coordinates[0], function (idx, pItem) {
-        leafletLatLngs.push({lat: pItem[1], lng: pItem[0]});
-    });
+    if(geoJson.type=="Point"){
 
-    var polygon = new L.Polygon(leafletLatLngs);
-    map.addLayer(polygon);
+        var circleOptions = {
+            color: '#ff0043'
+        };
 
-    $('#templateLoader').load("assets/html_templates/view_fence_popup.html #viewWithinAlert", function () {
-        var popupTemplate = $('#templateLoader').find('#viewWithinAlert');
-        popupTemplate.find('#exportGeoJson').attr('leaflet_id', polygon._leaflet_id);
-        popupTemplate.find('#hideViewFence').attr('leaflet_id', polygon._leaflet_id);
-        popupTemplate.find('#viewAreaName').html(areaName);
-        popupTemplate.find('#viewQueryName').html(queryName);
+        geometryShape= new L.circle([geoJson.coordinates[1],geoJson.coordinates[0]], geoJson.radius,circleOptions);
+       // var marker=new L.marker([geoJson.coordinates[1],geoJson.coordinates[0]]);
+        map.addLayer(geometryShape);
+      //  map.addLayer(marker);
 
-        polygon.bindPopup(popupTemplate.html(), {closeButton: false}).openPopup();
-        // transparent the layer .leaflet-popup-content-wrapper
-        $(polygon._popup._container.childNodes[0]).css("background", "rgba(255,255,255,0.8)");
-        closeAll();
-    });
+    } else if(geoJson.type=="Polygon"){
+
+        geoJson.coordinates[0].pop(); // popout the last coordinate set(lat,lng pair) due to circular chain
+        var leafletLatLngs = [];
+        $.each(geoJson.coordinates[0], function (idx, pItem) {
+            leafletLatLngs.push({lat: pItem[1], lng: pItem[0]});
+        });
+
+        geometryShape = new L.Polygon(leafletLatLngs);
+
+        map.addLayer(geometryShape);
+    }
+
+    if(id=="Stationery"){
+
+        var stationeryTime=$(geoFenceElement).attr('data-stationeryTime');
+
+        $('#templateLoader').load("assets/html_templates/view_fence_popup.html #viewStationeryAlert", function () {
+            var popupTemplate = $('#templateLoader').find('#viewStationeryAlert');
+            popupTemplate.find('#exportGeoJson').attr('leaflet_id', geometryShape._leaflet_id);
+            popupTemplate.find('#hideViewFence').attr('leaflet_id', geometryShape._leaflet_id);
+            popupTemplate.find('#viewAreaName').html(areaName);
+            popupTemplate.find('#viewQueryName').html(queryName);
+            popupTemplate.find('#viewAreaTime').html(stationeryTime);
+
+            geometryShape.bindPopup(popupTemplate.html(), {closeButton: false}).openPopup();
+            // transparent the layer .leaflet-popup-content-wrapper
+            $(geometryShape._popup._container.childNodes[0]).css("background", "rgba(255,255,255,0.8)");
+
+        });
+    } else if(id=="WithIn"){
+
+        $('#templateLoader').load("assets/html_templates/view_fence_popup.html #viewWithinAlert", function () {
+            var popupTemplate = $('#templateLoader').find('#viewWithinAlert');
+            popupTemplate.find('#exportGeoJson').attr('leaflet_id', geometryShape._leaflet_id);
+            popupTemplate.find('#hideViewFence').attr('leaflet_id', geometryShape._leaflet_id);
+            popupTemplate.find('#viewAreaName').html(areaName);
+            popupTemplate.find('#viewQueryName').html(queryName);
+
+            geometryShape.bindPopup(popupTemplate.html(), {closeButton: false}).openPopup();
+            // transparent the layer .leaflet-popup-content-wrapper
+            $(geometryShape._popup._container.childNodes[0]).css("background", "rgba(255,255,255,0.8)");
+
+        });
+    }
+    closeAll();
 }
