@@ -254,7 +254,8 @@ function removeGeoFence(geoFenceElement,id) {
     data = {
         'executionPlanName': createExecutionPlanName(queryName,id),
         'queryName': queryName,
-        'cepAction': 'undeploy'
+        'cepAction': 'undeploy',
+        'alertType': id
 
     };
     $.post('controllers/remove_alerts.jag', data, function (response) {

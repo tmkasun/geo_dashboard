@@ -1,7 +1,7 @@
 <%
     /* Includes */
     var cepInfo = require('../include/commons.jag').cepInfo;
-    var removeAlert = require('../include/store_alerts.jag').remove;
+    var removeAlert = require('../include/alerts_controller.jag').remove;
     var ws = require('ws');
 
     var log = new Log();
@@ -10,9 +10,10 @@
     var executionPlanName = request.getParameter('executionPlanName');
     var queryName = request.getParameter('queryName');
     var cepAction = request.getParameter('cepAction'); // i.e 'deploy' new executionPlan , 'edit' executionPlan and etc..
+    var alertType = request.getParameter('alertType');
 
     if(verb == "POST") {
-        removeAlert(queryName);
+        removeAlert(queryName,alertType);
 
         var cep = cepInfo();
 
