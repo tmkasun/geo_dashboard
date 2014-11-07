@@ -2,7 +2,7 @@
     /* Includes */
     var escapeXml = require('../include/commons.jag').escapeXml;
     var cepInfo = require('../include/commons.jag').cepInfo;
-    var storeAlerts = require('../include/store_alerts.jag').store; // TODO: change to js
+    var storeAlerts = require('../include/alerts_controller.jag').store; // TODO: change to js
     var ws = require('ws');
 
     var log = new Log();
@@ -49,7 +49,7 @@
         } else if(executionPlan == 'proximity'){
             var resourceContents = parseDataJson
         }
-        storeAlerts(parseKey,resourceContents,executionPlan,optionalArgs);
+        storeAlerts(resourceContents,executionPlan,optionalArgs);
 
         var cep = cepInfo();
 
