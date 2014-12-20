@@ -190,7 +190,7 @@ function setWithinAlert(leafletId) {
     var queryName = $("#queryName").val();
     var areaName = $("#areaName").val();
     var data = {
-        'parseData': JSON.stringify({'geoFenceGeoJSON': selectedAreaGeoJson, 'executionPlanName': createExecutionPlanName(queryName), 'areaName': areaName}),
+        'parseData': JSON.stringify({'geoFenceGeoJSON': selectedAreaGeoJson, 'executionPlanName': createExecutionPlanName(queryName,"WithIn"), 'areaName': areaName}),
         'executionPlan': 'within',
         'customName': areaName, // TODO: fix , When template copies there can be two queryName and areaName id elements in the DOM
         'queryName': queryName,
@@ -204,18 +204,58 @@ function setWithinAlert(leafletId) {
             pos: 'top-center'
         });
         closeAll();
-        closeWithinTools(leafletId);
+        closeTools(leafletId);
     }, 'json');
 }
 
-function removeGeoFence(geoFenceElement) {
+function setStationeryAlert(leafletId) {
+    /*
+     * TODO: replace double quote to single quote because of a conflict when deploying execution plan in CEP
+     * this is against JSON standards so has been re-replaced when getting the data from governance registry
+     * (look in get_alerts for .replace() method)
+     * */
+    var selectedAreaGeoJson = map._layers[leafletId].toGeoJSON().geometry;
+
+    //if a circle is drawn adding radius for the object
+    if(selectedAreaGeoJson.type=="Point"){
+
+        var radius=map._layers[leafletId]._mRadius;
+        selectedAreaGeoJson["radius"]=radius;
+    }
+
+    var selectedProcessedAreaGeoJson = JSON.stringify(selectedAreaGeoJson).replace(/"/g, "'");
+
+    var queryName = $("#queryName").val();
+    var stationeryName = $("#areaName").val();
+    var time = $("#time").val();
+    var data = {
+        'parseData': JSON.stringify({'geoFenceGeoJSON': selectedProcessedAreaGeoJson, 'executionPlanName': createExecutionPlanName(queryName,"Stationery"), 'stationeryName': stationeryName , 'stationeryTime': time}),
+        'executionPlan': 'stationery',
+        'customName': stationeryName, // TODO: fix , When template copies there can be two queryName and areaName id elements in the DOM
+        'queryName': queryName,
+        'cepAction': 'deploy'
+    };
+    $.post('controllers/set_alerts.jag', data, function (response) {
+        $.UIkit.notify({
+            message: '<span style="color: dodgerblue">' + response.status + '</span><br>' + response.message,
+            status: (response.status == 'success' ? 'success' : 'danger'),
+            timeout: 3000,
+            pos: 'top-center'
+        });
+        closeAll();
+        closeTools(leafletId);
+    }, 'json');
+}
+
+function removeGeoFence(geoFenceElement,id) {
     var queryName = $(geoFenceElement).attr('data-queryName');
     var areaName = $(geoFenceElement).attr('data-areaName');
 
     data = {
-        'executionPlanName': createExecutionPlanName(queryName),
+        'executionPlanName': createExecutionPlanName(queryName,id),
         'queryName': queryName,
-        'cepAction': 'undeploy'
+        'cepAction': 'undeploy',
+        'alertType': id
 
     };
     $.post('controllers/remove_alerts.jag', data, function (response) {
@@ -286,8 +326,15 @@ function setProximityAlert() {
 }
 
 // TODO:this is not a remote call , move this to application.js
-function createExecutionPlanName(queryName) {
-    return 'geo_within' + (queryName ? '_' + queryName : '') + '_alert'; // TODO: value of the `queryName` can't be empty, because it will cause name conflicts in CEP, have to do validation(check not empty String)
+function createExecutionPlanName(queryName,id) {
+
+    if(id=="WithIn"){
+        return 'geo_within' + (queryName ? '_' + queryName : '') + '_alert'; // TODO: value of the `queryName` can't be empty, because it will cause name conflicts in CEP, have to do validation(check not empty String)
+    }
+    else if(id=="Stationery"){
+        return 'geo_stationery' + (queryName ? '_' + queryName : '') + '_alert'; // TODO: value of the `queryName` can't be empty, because it will cause name conflicts in CEP, have to do validation(check not empty String)
+    }
+
 }
 
 // TODO:this is not a remote call , move this to application.js

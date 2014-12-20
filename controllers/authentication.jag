@@ -29,7 +29,7 @@ if(authentication){
 var isAuthorizedUser = function (){
         if(!session.get("user")){
              session.put("error", "Please login using tenant details before using map");
-             response.sendRedirect("/geo_dashboard/new/");
+             response.sendRedirect("/geo_dashboard/");
              return;
         }
     }

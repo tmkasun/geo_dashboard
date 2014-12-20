@@ -1,11 +1,8 @@
 <%
-    // TODO: change the name of this jaggery file even thoe it says 'store_alerts' it is actually removing the alerts from the data store as well o.O wired
-
     var dataStore = require('../include/commons.jag').dataStore;
     var log = new Log();
 
-    // TODO: change method params accordingly because parseKey gives no meaning
-    function store(parseKey,resourceContents,executionPlan,optional) {
+    function store(resourceContents,executionPlan,optional) {
         log.info("DEBUG:*** resourceContents:"+resourceContents);
         if(executionPlan == "speed"){
             var currentLimit;
@@ -63,16 +60,40 @@
             resource.addProperty("proximityTime", resourceContents.proximityTime);
             dataStore.put(String("geo/alerts/proximity/"+optional.executionPlan+".json"), resource);
 
+        } else if(executionPlan == "stationery"){
+
+            try{
+                var res = dataStore.get("geo/alerts/stationery");
+            }
+            catch(e){
+                var geo = dataStore.newCollection();
+                var alerts = dataStore.newCollection();
+                var stationery = dataStore.newCollection();
+
+                dataStore.put("geo", geo);
+                dataStore.put("alerts", alerts);
+                dataStore.put("stationery", stationery);
+            }
+            log.info("DEBUG:****** resourceContents = "+resourceContents.geoFenceGeoJSON);
+            var resource = dataStore.newResource();
+            resource.addProperty("queryName", optional.queryName);
+            resource.addProperty("stationeryName", optional.customName);
+            resource.addProperty("stationeryTime", resourceContents.stationeryTime);
+            resource.content = String(resourceContents.geoFenceGeoJSON);
+            dataStore.put(String("geo/alerts/stationery/"+optional.queryName+".json"), resource);
         }
     }
 
-    function remove(queryName) {
+    function remove(queryName,id) {
         try{
-            var path = "geo/alerts/within/"+queryName+".json"; // TODO:  remove within hardcoded value
+            if(id=="WithIn"){
+                var path = "geo/alerts/within/"+queryName+".json"; // TODO:  remove within hardcoded value
+            } else if(id=="Stationery"){
+                var path = "geo/alerts/stationery/"+queryName+".json"; // TODO:  remove within hardcoded value
+            }
             log.info("DEBUG: path = "+path);
             dataStore.remove(path);
-            }
-        catch(e){
+        } catch(e){
             log.info("The requested resource "+path+" was not found on this server. That’s all we know."); // Inspired by google 404 message
         }
     }
