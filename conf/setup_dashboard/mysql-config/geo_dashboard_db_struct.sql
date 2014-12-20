@@ -6,10 +6,10 @@
 CREATE TABLE `alerts_history` (
   `id` varchar (255) not null ,
   `state` varchar (100),
+  `information` varchar (255),
   `timeStamp` varchar (255),
-  `information` text,
-  `longitude` float,
-  `latitude` float,
+  `longitude` DOUBLE,
+  `latitude` DOUBLE,
   primary key (`id`,`timeStamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
 

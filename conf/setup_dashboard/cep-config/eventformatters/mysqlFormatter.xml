@@ -29,7 +29,7 @@
   </mapping>
   <to eventAdaptorName="DefaultMysqlOutputAdaptor" eventAdaptorType="mysql">
     <property name="table.name">alerts_history</property>
-    <property name="update.keys"/>
+    <property name="update.keys">id,timeStamp</property>
     <property name="execution.mode">insert</property>
   </to>
 </eventFormatter>
