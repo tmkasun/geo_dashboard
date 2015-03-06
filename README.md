@@ -17,20 +17,20 @@ A simple, responsive template for building web mapping applications with [Bootst
 ### Screenshots:
 
 * Interactive markers
-![Interactive markers](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2011:52:50.png)
+![Interactive markers](https://wso2.com/files/Image%203_3.png)
 
 * Draw a fence
-![Draw a fence](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2011:10:32.png)
+![Draw a fence](https://wso2.com/files/Image%206_6.png)
 
 * View defined fences
-![View defined fences](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2012:29:05.png)
+![View defined fences](https://wso2.com/files/Image%205_5.png)
 
-* Import geoJson file
-![Import geoJson file](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2011:07:18.png)
+* Proximity alerts
+![Import proximity file](https://wso2.com/files/Geo%20dashboard_4.png)
 
 * Add tile servers
-![Add tile servers](http://geo.knnect.com/geo_github_screenshots/Screenshot%20from%202014-09-09%2011:11:26.pn)
+![Add tile servers](https://wso2.com/files/Geo%20dashboard_7.png)
 
-* Mobile Popup
-![Mobile Popup](http://geo.knnect.com/geo_github_screenshots/mobile.png)
+* Alert Popups
+![Mobile Popup](https://wso2.com/files/Image%208_8.png)
 
