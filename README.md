@@ -3,7 +3,7 @@ Geo Dashboard
 
 A simple, responsive template for building web mapping applications with [Bootstrap](http://getbootstrap.com/), [Leaflet](http://leafletjs.com/), and [typeahead.js](http://twitter.github.io/typeahead.js/).
 
-### Demo: ~~[Geo Dashboard](http://geo.knnect.com:9763/geo_dashboard/new/)~~
+### Demo: [Geo Dashboard](http://aws4.knnect.com:9763/geo_dashboard/new/)
 
 ### Features:
 * Fullscreen mobile-friendly map template with responsive Navbar and modal placeholders
